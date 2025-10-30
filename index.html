@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reggae Rhythms Bingo Caller (1-75)</title>
-    <!-- Load Tailwind CSS (FIXED URL) -->
+    <!-- Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Load Tone.js for sound effects -->
     <script src="https://unpkg.com/tone@14.7.77/build/Tone.js"></script>
@@ -58,7 +58,12 @@
 </head>
 <!-- h-screen ensures it fills the viewport vertically -->
 <body class="h-screen flex flex-col p-4 md:p-8">
-    <!-- Removed max-w-6xl to allow it to stretch horizontally -->
+    
+    <!-- Fullscreen Button positioned discreetly -->
+    <button id="fullscreen-button" class="absolute top-2 right-2 bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold py-2 px-3 rounded-lg shadow-md transition duration-200 z-10">
+        Go Full Screen
+    </button>
+    
     <div id="app" class="w-full mx-auto flex flex-col h-full">
         <!-- Header -->
         <header class="text-center mb-6 md:mb-10 flex-shrink-0">
@@ -144,6 +149,7 @@
         const llmCalloutButton = document.getElementById('llm-callout-button');
         const llmOutputEl = document.getElementById('llm-output');
         const llmTextEl = document.getElementById('llm-text');
+        const fullscreenButton = document.getElementById('fullscreen-button'); // New element
 
 
         // --- Tone.js Setup for Sound Effect ---
@@ -161,6 +167,7 @@
         // Plays a cheerful Caribbean-style chord
         async function playCallSound() {
             try {
+                // Ensure Tone.js is started by the user interaction
                 await Tone.start();
                 synth.triggerAttackRelease(["C4", "E4", "G4"], "4n"); // C Major chord
             } catch (error) {
@@ -405,11 +412,32 @@
                 callButton.textContent = 'Calling...';
             }
         }
+        
+        // --- Fullscreen Logic ---
+        function toggleFullscreen() {
+            const docEl = document.documentElement;
+            if (document.fullscreenElement) {
+                // Exit fullscreen
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+                fullscreenButton.textContent = 'Go Full Screen';
+            } else {
+                // Enter fullscreen
+                if (docEl.requestFullscreen) {
+                    docEl.requestFullscreen();
+                } else if (docEl.webkitRequestFullscreen) { // Safari support
+                    docEl.webkitRequestFullscreen();
+                }
+                fullscreenButton.textContent = 'Exit Full Screen';
+            }
+        }
 
         // --- Event Listeners ---
         callButton.addEventListener('click', callNumber);
         resetButton.addEventListener('click', resetGame);
         llmCalloutButton.addEventListener('click', generateReggaeCallout);
+        fullscreenButton.addEventListener('click', toggleFullscreen); // New listener
 
         // Initialize the game when the script loads
         window.onload = resetGame;
