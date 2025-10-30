@@ -3,128 +3,417 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reggae Bingo Caller</title>
+    <title>Reggae Rhythms Bingo Caller (1-75)</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Tone.js for sound effects -->
+    <script src="https://unpkg.com/tone@14.7.77/build/Tone.js"></script>
     <style>
+        /* Custom font for a more thematic feel, though Inter is used as a reliable fallback */
+        @import url('https://fonts.googleapis.com/css2?family=Bungee+Inline&family=Inter:wght@400;700;900&display=swap');
+        
+        /* --- FULL SCREEN ADJUSTMENTS --- */
+        /* Set HTML and Body to fill the entire viewport */
+        html, body {
+            height: 100%;
+            width: 100%;
+        }
+
         body {
-            font-family: 'Arial', sans-serif;
-            background-color: #008000; /* Green */
-            color: #FFD700; /* Gold/Yellow */
-            text-align: center;
-            padding-top: 50px;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
+            font-family: 'Inter', sans-serif;
+            background-color: #1a1a1a; /* Dark background */
         }
-        h1 {
-            color: #000000; /* Black for contrast */
-            margin-bottom: 30px;
-            text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.5);
+        
+        .reggae-bg {
+            background: linear-gradient(135deg, #10b981 0%, #34d399 50%, #facc15 100%); /* Green-Yellow gradient */
         }
-        #callDisplay {
-            font-size: 8em;
-            font-weight: bold;
-            color: #FF0000; /* Red */
-            margin-bottom: 20px;
-            padding: 20px;
-            border: 5px solid #FFD700;
-            background-color: #000000;
-            border-radius: 15px;
-            min-width: 200px;
+
+        .reggae-text-shadow {
+            text-shadow: 2px 2px 0px #ef4444; /* Red shadow */
         }
-        #numberList {
-            margin-top: 20px;
-            padding: 10px;
-            border: 2px solid #FFD700;
-            background-color: rgba(0, 0, 0, 0.7);
-            border-radius: 10px;
-            max-width: 80%;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
+
+        .reggae-history-highlight {
+            background-color: #dc2626; /* Deep Red */
+            color: #facc15; /* Gold */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -2px rgba(0, 0, 0, 0.5);
+            transition: transform 0.2s;
         }
-        .called-number {
-            display: inline-block;
-            margin: 5px;
-            padding: 5px 10px;
-            border-radius: 5px;
-            background-color: #FFD700;
-            color: #000000;
-            font-weight: bold;
-            font-size: 1.1em;
+
+        .reggae-history-highlight:hover {
+            transform: translateY(-2px);
         }
-        button {
-            padding: 15px 30px;
-            font-size: 1.5em;
-            background-color: #FF0000; /* Red */
-            color: #FFD700;
-            border: 3px solid #FFD700;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background-color 0.3s, transform 0.1s;
-            margin: 10px;
+
+        /* Animation Classes */
+        .spin-start {
+            opacity: 0;
+            transform: scale(0.5) rotate(0deg);
         }
-        button:hover {
-            background-color: #cc0000;
-            transform: scale(1.05);
-        }
-        button:disabled {
-            background-color: #333333;
-            color: #888888;
-            cursor: not-allowed;
-            border-color: #555555;
-        }
-        #message {
-            margin-top: 20px;
-            font-size: 1.2em;
-            color: #FFFFFF;
+
+        .spin-end {
+            opacity: 1;
+            transform: scale(1) rotate(360deg);
+            transition: all 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
         }
     </style>
 </head>
-<body>
-    <h1>🎤 Reggae Bingo Caller 🎤</h1>
-    <div id="callDisplay">START</div>
-    <div id="message">Press 'Call Next Number' to begin!</div>
-    <button id="callButton" onclick="callNumber()">Call Next Number</button>
-    <button id="resetButton" onclick="resetGame()" disabled>Reset Game</button>
-    
-    <div id="numberList"></div>
+<!-- h-screen ensures it fills the viewport vertically -->
+<body class="h-screen flex flex-col p-4 md:p-8">
+    <!-- Removed max-w-6xl to allow it to stretch horizontally -->
+    <div id="app" class="w-full mx-auto flex flex-col h-full">
+        <!-- Header -->
+        <header class="text-center mb-6 md:mb-10 flex-shrink-0">
+            <h1 class="4xl sm:text-6xl font-extrabold text-white mb-2 leading-none" style="font-family: 'Bungee Inline', cursive;">
+                Bingo Riddim! 🌴
+            </h1>
+            <p class="text-xl text-yellow-300">Feeling Hot Hot Hot! (1-75 Caller)</p>
+        </header>
 
-    <script>
+        <!-- Main Caller Area - Now uses flex-grow to take up remaining space -->
+        <main class="reggae-bg p-6 md:p-10 rounded-3xl shadow-2xl mb-6 flex-grow flex flex-col justify-center border-4 border-red-600">
+            <h2 class="text-center text-3xl font-bold mb-4 text-gray-900 reggae-text-shadow flex-shrink-0">CURRENT CALL</h2>
+            
+            <!-- Called Number Display -->
+            <div id="current-number-container" class="w-48 h-48 sm:w-64 sm:h-64 mx-auto mb-6 flex items-center justify-center bg-gray-900 rounded-full shadow-inner border-8 border-yellow-300 flex-shrink-0">
+                <span id="current-number" class="text-7xl sm:text-9xl font-black text-green-400 spin-start">--</span>
+            </div>
+
+            <!-- Call Buttons -->
+            <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6 flex-shrink-0">
+                <!-- Primary Call Button -->
+                <button id="call-button" class="bg-red-600 hover:bg-red-700 text-white font-extrabold py-3 px-8 rounded-full shadow-lg transition duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed uppercase text-lg">
+                    Call Next Number!
+                </button>
+                <!-- Reset Button -->
+                <button id="reset-button" class="bg-gray-700 hover:bg-gray-600 text-white font-extrabold py-3 px-8 rounded-full shadow-lg transition duration-200 transform hover:scale-105 uppercase text-lg">
+                    Reset Game
+                </button>
+            </div>
+            
+            <p id="game-status" class="text-center mt-4 text-xl font-bold text-gray-900 flex-shrink-0">Game Initialized. Ready to go!</p>
+
+            <!-- Gemini LLM Feature -->
+            <div class="flex flex-col justify-center mt-4 flex-shrink-0">
+                <!-- LLM Callout Button -->
+                <button id="llm-callout-button" class="bg-yellow-600 hover:bg-yellow-700 text-gray-900 font-extrabold py-3 px-8 rounded-full shadow-lg transition duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed uppercase text-lg w-full sm:w-auto mx-auto">
+                    ✨ Reggae Verse Call!
+                </button>
+            </div>
+
+            <!-- LLM Output Area -->
+            <div id="llm-output" class="mt-6 p-4 bg-yellow-200 rounded-xl shadow-inner text-gray-800 hidden border-l-4 border-green-500 flex-shrink-0">
+                <p class="font-extrabold mb-1 text-red-600 uppercase">🎤 The Riddim Master Says:</p>
+                <p id="llm-text" class="italic text-lg"></p>
+            </div>
+        </main>
+
+        <!-- History Section - Now uses flex-shrink-0 to occupy a fixed size at the bottom -->
+        <section class="bg-gray-800 p-6 rounded-3xl shadow-xl border-t-4 border-yellow-300 flex-shrink-0">
+            <h3 class="text-2xl font-bold mb-4 text-white">Previously Called Numbers (Total: <span id="called-count">0</span>)</h3>
+            <div id="history-list" class="flex flex-wrap gap-3 max-h-48 md:max-h-56 overflow-y-auto p-2 bg-gray-900 rounded-xl">
+                <!-- History items will be injected here -->
+                <p class="text-gray-500 italic">No numbers called yet. Hit the button above to start the riddim!</p>
+            </div>
+        </section>
+
+    </div>
+
+    <script type="module">
+        // Global variables and constants
         const MIN_NUMBER = 1;
-        const MAX_NUMBER = 90;
-        let availableNumbers = [];
-        let calledNumbers = [];
+        const MAX_NUMBER = 75;
+        const SHUFFLE_DURATION_MS = 500;
         
-        // Populate the initial list of available numbers
-        function initializeNumbers() {
-            availableNumbers = Array.from({length: MAX_NUMBER - MIN_NUMBER + 1}, (_, i) => i + MIN_NUMBER);
-            calledNumbers = [];
-            document.getElementById('callDisplay').textContent = "START";
-            document.getElementById('message').textContent = "Press 'Call Next Number' to begin!";
-            document.getElementById('numberList').innerHTML = '';
-            document.getElementById('callButton').disabled = false;
-            document.getElementById('resetButton').disabled = true;
+        // --- Gemini API Configuration ---
+        const API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent';
+        const API_KEY = ""; // Canvas will inject this token
+        const MAX_RETRIES = 5;
+
+        let remainingNumbers = [];
+        let calledNumbers = [];
+        let isCalling = false;
+        let lastCalledNumber = null; // Tracks the last number for the LLM feature
+        let isLlmGenerating = false; // Tracks if LLM is currently generating
+
+        // DOM Elements
+        const currentNumberEl = document.getElementById('current-number');
+        const historyListEl = document.getElementById('history-list');
+        const callButton = document.getElementById('call-button');
+        const resetButton = document.getElementById('reset-button');
+        const gameStatusEl = document.getElementById('game-status');
+        const calledCountEl = document.getElementById('called-count');
+        const llmCalloutButton = document.getElementById('llm-callout-button');
+        const llmOutputEl = document.getElementById('llm-output');
+        const llmTextEl = document.getElementById('llm-text');
+
+
+        // --- Tone.js Setup for Sound Effect ---
+        const synth = new Tone.PolySynth(Tone.Synth, {
+            oscillator: { type: "square" },
+            envelope: {
+                attack: 0.01,
+                decay: 0.2,
+                sustain: 0.1,
+                release: 0.5
+            },
+            volume: -10 // Keep it audible but not deafening
+        }).toDestination();
+
+        // Plays a cheerful Caribbean-style chord
+        async function playCallSound() {
+            try {
+                await Tone.start();
+                synth.triggerAttackRelease(["C4", "E4", "G4"], "4n"); // C Major chord
+            } catch (error) {
+                console.error("Error playing sound (Tone.js might be blocked before first interaction):", error);
+            }
         }
 
-        // Randomly select and call a number
-        function callNumber() {
-            if (availableNumbers.length === 0) {
-                document.getElementById('callDisplay').textContent = "BINGO!";
-                document.getElementById('message').textContent = "All numbers have been called. Game over!";
-                document.getElementById('callButton').disabled = true;
-                document.getElementById('resetButton').disabled = false;
+        // --- Utility Functions ---
+
+        /**
+         * Helper to determine Bingo Column based on the number.
+         * @param {number} number - The called Bingo number (1-75).
+         * @returns {string} The corresponding Bingo letter (B, I, N, G, O).
+         */
+        function getBingoColumn(number) {
+            if (number >= 1 && number <= 15) return 'B';
+            if (number >= 16 && number <= 30) return 'I';
+            if (number >= 31 && number <= 45) return 'N';
+            if (number >= 46 && number <= 60) return 'G';
+            if (number >= 61 && number <= 75) return 'O';
+            return 'Invalid';
+        }
+
+        /**
+         * Utility function for API call with retry (Exponential Backoff).
+         */
+        async function fetchWithRetry(url, payload, retries = MAX_RETRIES) {
+            for (let i = 0; i < retries; i++) {
+                try {
+                    const response = await fetch(url + `?key=${API_KEY}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (response.ok) {
+                        return await response.json();
+                    } else if (response.status === 429 && i < retries - 1) {
+                        // Rate limit hit, wait with exponential backoff
+                        const delay = Math.pow(2, i) * 1000 + Math.random() * 1000;
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                    } else {
+                        throw new Error(`API error: ${response.status} ${response.statusText}`);
+                    }
+                } catch (error) {
+                    if (i === retries - 1) {
+                        console.error("Fetch failed after multiple retries:", error);
+                        throw error;
+                    }
+                }
+            }
+        }
+
+        // --- Gemini LLM Feature Logic ---
+        
+        /**
+         * Uses the Gemini API to generate a thematic call-out for the last number.
+         */
+        async function generateReggaeCallout() {
+            if (lastCalledNumber === null || isLlmGenerating) {
+                if (lastCalledNumber === null) {
+                    llmOutputEl.classList.remove('hidden');
+                    llmTextEl.textContent = 'Please call a number first, mon!';
+                }
                 return;
             }
 
-            const randomIndex = Math.floor(Math.random() * availableNumbers.length);
-            const calledNum = availableNumbers.splice(randomIndex, 1)[0]; // Remove and get the number
-            calledNumbers.push(calledNum);
-            calledNumbers.sort((a, b) => a - b); // Keep the called list sorted
+            isLlmGenerating = true;
+            updateLlmButtonState(false);
+            llmOutputEl.classList.remove('hidden');
+            llmTextEl.innerHTML = '<span class="animate-pulse">The Riddim Master is tuning in... 🎶</span>';
+
+            const number = lastCalledNumber;
+            const column = getBingoColumn(number);
             
-            // Update display
-            document.getElementById('callDisplay').textContent = calledNum;
-            document.getElementById('message').textContent = `Called ${calledNumbers.length} out of 90 numbers.`;
-            document.getElementById('reset
+            // Construct the user query for Gemini
+            const userQuery = `The current Bingo number is ${number}, which falls under the letter "${column}". Give me a single, short, hilarious, and positive Reggae-themed call-out or phrase for this number, referencing the letter and the number, using Jamaican Patois, and maintaining the spirit of 'Cool Runnings'. Do not use any introductory or concluding sentences, just the phrase itself.`;
+            
+            const systemPrompt = "You are the Riddim Master, a charismatic and energetic Bingo Caller with a strong Jamaican accent and a love for Reggae music and the film 'Cool Runnings'. Your responses must be concise and exciting.";
+
+            const payload = {
+                contents: [{ parts: [{ text: userQuery }] }],
+                systemInstruction: { parts: [{ text: systemPrompt }] },
+            };
+
+            try {
+                const result = await fetchWithRetry(API_URL, payload);
+                const text = result?.candidates?.[0]?.content?.parts?.[0]?.text || "No riddim found, try again!";
+                
+                llmTextEl.textContent = text;
+                
+            } catch (error) {
+                llmTextEl.textContent = 'Riddim failed! Error talking to the mountain top, man.';
+                console.error("Gemini API call failed:", error);
+            } finally {
+                isLlmGenerating = false;
+                updateLlmButtonState(true);
+            }
+        }
+
+        /**
+         * Updates the state of the LLM callout button.
+         * @param {boolean} enable - Whether the button should be enabled.
+         */
+        function updateLlmButtonState(enable) {
+            const isReady = enable && lastCalledNumber !== null;
+            llmCalloutButton.disabled = !isReady || isLlmGenerating;
+            if (isLlmGenerating) {
+                llmCalloutButton.textContent = 'Tuning In...';
+            } else {
+                llmCalloutButton.textContent = '✨ Reggae Verse Call!';
+            }
+        }
+
+
+        // --- Core Game Logic ---
+
+        /**
+         * Initializes or resets the game state.
+         */
+        function resetGame() {
+            // Create the full pool of numbers (1 to 75)
+            remainingNumbers = Array.from({ length: MAX_NUMBER }, (_, i) => i + MIN_NUMBER);
+            calledNumbers = [];
+            lastCalledNumber = null; // Reset LLM tracker
+            isLlmGenerating = false; // Reset LLM state
+            
+            // UI updates
+            currentNumberEl.textContent = '--';
+            currentNumberEl.classList.add('spin-start');
+            historyListEl.innerHTML = '<p class="text-gray-500 italic">No numbers called yet. Hit the button above to start the riddim!</p>';
+            updateCallButtonState(true);
+            updateLlmButtonState(false); // Disable LLM button until first call
+            llmOutputEl.classList.add('hidden'); // Hide old callout
+            gameStatusEl.textContent = 'Game Initialized. Ready to go!';
+            calledCountEl.textContent = '0';
+            console.log("Game Reset. Numbers remaining:", remainingNumbers.length);
+        }
+
+        /**
+         * Renders the history list.
+         */
+        function renderHistory() {
+            calledCountEl.textContent = calledNumbers.length;
+
+            if (calledNumbers.length === 0) {
+                historyListEl.innerHTML = '<p class="text-gray-500 italic">No numbers called yet. Hit the button above to start the riddim!</p>';
+                return;
+            }
+
+            // Create a temporary document fragment for performance
+            const fragment = document.createDocumentFragment();
+            
+            // Iterate over the history in reverse order (most recent first)
+            calledNumbers.slice().reverse().forEach((number, index) => {
+                const numberEl = document.createElement('span');
+                numberEl.textContent = number;
+                numberEl.className = 'reggae-history-highlight text-base font-bold rounded-full p-2 w-10 h-10 flex items-center justify-center';
+                
+                // Highlight the most recently called number
+                if (index === 0) {
+                    numberEl.classList.add('ring-4', 'ring-offset-2', 'ring-red-300', 'animate-pulse');
+                }
+
+                fragment.appendChild(numberEl);
+            });
+
+            historyListEl.innerHTML = '';
+            historyListEl.appendChild(fragment);
+        }
+
+        /**
+         * Handles the click to call a new number.
+         */
+        function callNumber() {
+            if (isCalling || remainingNumbers.length === 0) {
+                if (remainingNumbers.length === 0) {
+                    gameStatusEl.textContent = 'Game Over, man! All 75 numbers have been called.';
+                    updateCallButtonState(false);
+                }
+                return;
+            }
+
+            isCalling = true;
+            updateCallButtonState(false);
+            updateLlmButtonState(false); // Disable LLM button during call sequence
+            gameStatusEl.textContent = 'Calling... Rocking the balls! 🥁';
+            llmOutputEl.classList.add('hidden'); // Hide old callout
+
+            // Start animation (spin out)
+            currentNumberEl.classList.remove('spin-end');
+            currentNumberEl.classList.add('spin-start');
+            currentNumberEl.textContent = '...';
+
+            // Simulate the shuffling/spinning time
+            setTimeout(() => {
+                // Fisher-Yates style shuffle and pop
+                const randomIndex = Math.floor(Math.random() * remainingNumbers.length);
+                const [called] = remainingNumbers.splice(randomIndex, 1);
+                
+                // Add to history and update LLM tracker
+                calledNumbers.push(called);
+                lastCalledNumber = called;
+                
+                // Update UI for the new number
+                currentNumberEl.textContent = called;
+                currentNumberEl.classList.remove('spin-start');
+                currentNumberEl.classList.add('spin-end');
+                
+                // Play sound
+                playCallSound();
+
+                // Update history display
+                renderHistory();
+
+                // Final status check
+                if (remainingNumbers.length === 0) {
+                    gameStatusEl.textContent = 'BINGO! All numbers have been called.';
+                } else {
+                    const nextUp = remainingNumbers.length === 1 ? 'Last one left!' : `${remainingNumbers.length} numbers left.`;
+                    gameStatusEl.textContent = `Called: ${called}. ${nextUp}`;
+                }
+
+                isCalling = false;
+                updateCallButtonState(remainingNumbers.length > 0);
+                updateLlmButtonState(true); // Enable LLM button now that a number is available
+
+            }, SHUFFLE_DURATION_MS); // Animation duration
+        }
+
+        /**
+         * Updates the state of the main call button.
+         * @param {boolean} enable - Whether the button should be enabled.
+         */
+        function updateCallButtonState(enable) {
+            callButton.disabled = !enable;
+            if (enable) {
+                callButton.textContent = 'Call Next Number!';
+            } else if (remainingNumbers.length === 0) {
+                callButton.textContent = 'Game Over!';
+            } else {
+                callButton.textContent = 'Calling...';
+            }
+        }
+
+        // --- Event Listeners ---
+        callButton.addEventListener('click', callNumber);
+        resetButton.addEventListener('click', resetGame);
+        llmCalloutButton.addEventListener('click', generateReggaeCallout);
+
+        // Initialize the game when the script loads
+        window.onload = resetGame;
+
+    </script>
+</body>
+</html>
