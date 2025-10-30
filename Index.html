@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reggae Bingo Caller</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #008000; /* Green */
+            color: #FFD700; /* Gold/Yellow */
+            text-align: center;
+            padding-top: 50px;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        h1 {
+            color: #000000; /* Black for contrast */
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.5);
+        }
+        #callDisplay {
+            font-size: 8em;
+            font-weight: bold;
+            color: #FF0000; /* Red */
+            margin-bottom: 20px;
+            padding: 20px;
+            border: 5px solid #FFD700;
+            background-color: #000000;
+            border-radius: 15px;
+            min-width: 200px;
+        }
+        #numberList {
+            margin-top: 20px;
+            padding: 10px;
+            border: 2px solid #FFD700;
+            background-color: rgba(0, 0, 0, 0.7);
+            border-radius: 10px;
+            max-width: 80%;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .called-number {
+            display: inline-block;
+            margin: 5px;
+            padding: 5px 10px;
+            border-radius: 5px;
+            background-color: #FFD700;
+            color: #000000;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        button {
+            padding: 15px 30px;
+            font-size: 1.5em;
+            background-color: #FF0000; /* Red */
+            color: #FFD700;
+            border: 3px solid #FFD700;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+            margin: 10px;
+        }
+        button:hover {
+            background-color: #cc0000;
+            transform: scale(1.05);
+        }
+        button:disabled {
+            background-color: #333333;
+            color: #888888;
+            cursor: not-allowed;
+            border-color: #555555;
+        }
+        #message {
+            margin-top: 20px;
+            font-size: 1.2em;
+            color: #FFFFFF;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎤 Reggae Bingo Caller 🎤</h1>
+    <div id="callDisplay">START</div>
+    <div id="message">Press 'Call Next Number' to begin!</div>
+    <button id="callButton" onclick="callNumber()">Call Next Number</button>
+    <button id="resetButton" onclick="resetGame()" disabled>Reset Game</button>
+    
+    <div id="numberList"></div>
+
+    <script>
+        const MIN_NUMBER = 1;
+        const MAX_NUMBER = 90;
+        let availableNumbers = [];
+        let calledNumbers = [];
+        
+        // Populate the initial list of available numbers
+        function initializeNumbers() {
+            availableNumbers = Array.from({length: MAX_NUMBER - MIN_NUMBER + 1}, (_, i) => i + MIN_NUMBER);
+            calledNumbers = [];
+            document.getElementById('callDisplay').textContent = "START";
+            document.getElementById('message').textContent = "Press 'Call Next Number' to begin!";
+            document.getElementById('numberList').innerHTML = '';
+            document.getElementById('callButton').disabled = false;
+            document.getElementById('resetButton').disabled = true;
+        }
+
+        // Randomly select and call a number
+        function callNumber() {
+            if (availableNumbers.length === 0) {
+                document.getElementById('callDisplay').textContent = "BINGO!";
+                document.getElementById('message').textContent = "All numbers have been called. Game over!";
+                document.getElementById('callButton').disabled = true;
+                document.getElementById('resetButton').disabled = false;
+                return;
+            }
+
+            const randomIndex = Math.floor(Math.random() * availableNumbers.length);
+            const calledNum = availableNumbers.splice(randomIndex, 1)[0]; // Remove and get the number
+            calledNumbers.push(calledNum);
+            calledNumbers.sort((a, b) => a - b); // Keep the called list sorted
+            
+            // Update display
+            document.getElementById('callDisplay').textContent = calledNum;
+            document.getElementById('message').textContent = `Called ${calledNumbers.length} out of 90 numbers.`;
+            document.getElementById('reset
