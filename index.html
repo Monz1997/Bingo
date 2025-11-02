@@ -3,17 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reggae Rhythms Bingo Caller (1-75)</title>
-    <!-- Load Tailwind CSS -->
+    <title>Cool Runnings Pub & Grill Bingo Caller (1-75)</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Load Tone.js for sound effects -->
     <script src="https://unpkg.com/tone@14.7.77/build/Tone.js"></script>
     <style>
         /* Custom font for a more thematic feel, though Inter is used as a reliable fallback */
         @import url('https://fonts.googleapis.com/css2?family=Bungee+Inline&family=Inter:wght@400;700;900&display=swap');
         
         /* --- FULL SCREEN ADJUSTMENTS --- */
-        /* Set HTML and Body to fill the entire viewport */
         html, body {
             height: 100%;
             width: 100%;
@@ -21,20 +18,23 @@
 
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #1a1a1a; /* Dark background */
+            background-color: #000000; /* Deep Black background for contrast */
         }
         
+        /* Adjusted gradient to use primary R/Y/G colors */
         .reggae-bg {
-            background: linear-gradient(135deg, #10b981 0%, #34d399 50%, #facc15 100%); /* Green-Yellow gradient */
+            background: linear-gradient(135deg, #FFD700 0%, #008000 50%, #FF0000 100%); /* Yellow, Green, Red */
         }
 
+        /* Text shadow using Red */
         .reggae-text-shadow {
-            text-shadow: 2px 2px 0px #ef4444; /* Red shadow */
+            text-shadow: 2px 2px 0px #FF0000; /* Red shadow */
         }
 
+        /* History highlight for called numbers: Green background, Yellow text */
         .reggae-history-highlight {
-            background-color: #dc2626; /* Deep Red */
-            color: #facc15; /* Gold */
+            background-color: #008000; /* Green */
+            color: #FFD700; /* Gold/Yellow */
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -2px rgba(0, 0, 0, 0.5);
             transition: transform 0.2s;
         }
@@ -56,39 +56,29 @@
         }
     </style>
 </head>
-<!-- h-screen ensures it fills the viewport vertically -->
 <body class="h-screen flex flex-col p-4 md:p-8">
     
-    <!-- Fullscreen Button positioned discreetly -->
     <button id="fullscreen-button" class="absolute top-2 right-2 bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold py-2 px-3 rounded-lg shadow-md transition duration-200 z-10">
         Go Full Screen
     </button>
     
     <div id="app" class="w-full mx-auto flex flex-col h-full">
-        <!-- Header -->
         <header class="text-center mb-6 md:mb-10 flex-shrink-0">
-            <h1 class="text-4xl sm:text-6xl font-extrabold text-white mb-2 leading-none" style="font-family: 'Bungee Inline', cursive;">
-                Bingo Riddim! 🌴
-            </h1>
-            <p class="text-xl text-yellow-300">Feeling Hot Hot Hot! (1-75 Caller)</p>
+            <img src="cool_runnings_logo.png" alt="Cool Runnings Pub & Grill Logo" class="mx-auto mb-4 w-48 sm:w-64">
+            <p class="text-xl text-white">Bingo Caller: Feeling Hot Hot Hot! (1-75)</p>
         </header>
 
-        <!-- Main Caller Area - Now uses flex-grow to take up remaining space -->
-        <main class="reggae-bg p-6 md:p-10 rounded-3xl shadow-2xl mb-6 flex-grow flex flex-col justify-center border-4 border-red-600">
+        <main class="reggae-bg p-6 md:p-10 rounded-3xl shadow-2xl mb-6 flex-grow flex flex-col justify-center border-4 border-yellow-500">
             <h2 class="text-center text-3xl font-bold mb-4 text-gray-900 reggae-text-shadow flex-shrink-0">CURRENT CALL</h2>
             
-            <!-- Called Number Display -->
             <div id="current-number-container" class="w-48 h-48 sm:w-64 sm:h-64 mx-auto mb-6 flex items-center justify-center bg-gray-900 rounded-full shadow-inner border-8 border-yellow-300 flex-shrink-0">
                 <span id="current-number" class="text-7xl sm:text-9xl font-black text-green-400 spin-start">--</span>
             </div>
 
-            <!-- Call Buttons -->
             <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6 flex-shrink-0">
-                <!-- Primary Call Button -->
                 <button id="call-button" class="bg-red-600 hover:bg-red-700 text-white font-extrabold py-3 px-8 rounded-full shadow-lg transition duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed uppercase text-lg">
                     Call Next Number!
                 </button>
-                <!-- Reset Button -->
                 <button id="reset-button" class="bg-gray-700 hover:bg-gray-600 text-white font-extrabold py-3 px-8 rounded-full shadow-lg transition duration-200 transform hover:scale-105 uppercase text-lg">
                     Reset Game
                 </button>
@@ -96,26 +86,21 @@
             
             <p id="game-status" class="text-center mt-4 text-xl font-bold text-gray-900 flex-shrink-0">Game Initialized. Ready to go!</p>
 
-            <!-- Gemini LLM Feature -->
             <div class="flex flex-col justify-center mt-4 flex-shrink-0">
-                <!-- LLM Callout Button -->
                 <button id="llm-callout-button" class="bg-yellow-600 hover:bg-yellow-700 text-gray-900 font-extrabold py-3 px-8 rounded-full shadow-lg transition duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed uppercase text-lg w-full sm:w-auto mx-auto">
                     ✨ Reggae Verse Call!
                 </button>
             </div>
 
-            <!-- LLM Output Area -->
             <div id="llm-output" class="mt-6 p-4 bg-yellow-200 rounded-xl shadow-inner text-gray-800 hidden border-l-4 border-green-500 flex-shrink-0">
                 <p class="font-extrabold mb-1 text-red-600 uppercase">🎤 The Riddim Master Says:</p>
                 <p id="llm-text" class="italic text-lg"></p>
             </div>
         </main>
 
-        <!-- History Section - Now uses flex-shrink-0 to occupy a fixed size at the bottom -->
         <section class="bg-gray-800 p-6 rounded-3xl shadow-xl border-t-4 border-yellow-300 flex-shrink-0">
             <h3 class="text-2xl font-bold mb-4 text-white">Previously Called Numbers (Total: <span id="called-count">0</span>)</h3>
             <div id="history-list" class="flex flex-wrap gap-3 max-h-48 md:max-h-56 overflow-y-auto p-2 bg-gray-900 rounded-xl">
-                <!-- History items will be injected here -->
                 <p class="text-gray-500 italic">No numbers called yet. Hit the button above to start the riddim!</p>
             </div>
         </section>
