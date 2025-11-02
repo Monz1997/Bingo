@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cool Runnings Pub & Grill Bingo Caller (1-75)</title>
+    <!-- Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Tone.js for sound effects -->
     <script src="https://unpkg.com/tone@14.7.77/build/Tone.js"></script>
     <style>
         /* Custom font for a more thematic feel, though Inter is used as a reliable fallback */
@@ -56,34 +58,45 @@
         }
     </style>
 </head>
+<!-- h-screen ensures it fills the viewport vertically -->
 <body class="h-screen flex flex-col p-4 md:p-8">
     
+    <!-- Top-Right Control Buttons: Includes Link to Ticket Page -->
     <div class="absolute top-2 right-2 space-x-2 z-10">
+        <!-- New Tickets Link Button -->
         <a href="bingo_tickets.html" class="bg-green-600 hover:bg-green-700 text-white text-xs font-bold py-2 px-3 rounded-lg shadow-md transition duration-200 inline-flex items-center">
             🎟️ Get Tickets
         </a>
+        <!-- Fullscreen Button -->
         <button id="fullscreen-button" class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold py-2 px-3 rounded-lg shadow-md transition duration-200">
             Go Full Screen
         </button>
     </div>
     
     <div id="app" class="w-full mx-auto flex flex-col h-full">
+        <!-- Header: Replaced with Logo -->
         <header class="text-center mb-6 md:mb-10 flex-shrink-0">
+            <!-- LOGO INTEGRATION HERE - Ensure 'cool_runnings_logo.png' is in the same folder -->
             <img src="cool_runnings_logo.png" alt="Cool Runnings Pub & Grill Logo" class="mx-auto mb-4 w-48 sm:w-64">
             <p class="text-xl text-white">Bingo Caller: Feeling Hot Hot Hot! (1-75)</p>
         </header>
 
+        <!-- Main Caller Area: Border changed to Yellow-500 -->
         <main class="reggae-bg p-6 md:p-10 rounded-3xl shadow-2xl mb-6 flex-grow flex flex-col justify-center border-4 border-yellow-500">
             <h2 class="text-center text-3xl font-bold mb-4 text-gray-900 reggae-text-shadow flex-shrink-0">CURRENT CALL</h2>
             
+            <!-- Called Number Display: Border changed to Yellow-300, Text changed to Green-400 -->
             <div id="current-number-container" class="w-48 h-48 sm:w-64 sm:h-64 mx-auto mb-6 flex items-center justify-center bg-gray-900 rounded-full shadow-inner border-8 border-yellow-300 flex-shrink-0">
                 <span id="current-number" class="text-7xl sm:text-9xl font-black text-green-400 spin-start">--</span>
             </div>
 
+            <!-- Call Buttons: Primary button is Red-600 -->
             <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6 flex-shrink-0">
+                <!-- Primary Call Button -->
                 <button id="call-button" class="bg-red-600 hover:bg-red-700 text-white font-extrabold py-3 px-8 rounded-full shadow-lg transition duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed uppercase text-lg">
                     Call Next Number!
                 </button>
+                <!-- Reset Button -->
                 <button id="reset-button" class="bg-gray-700 hover:bg-gray-600 text-white font-extrabold py-3 px-8 rounded-full shadow-lg transition duration-200 transform hover:scale-105 uppercase text-lg">
                     Reset Game
                 </button>
@@ -91,21 +104,26 @@
             
             <p id="game-status" class="text-center mt-4 text-xl font-bold text-gray-900 flex-shrink-0">Game Initialized. Ready to go!</p>
 
+            <!-- Gemini LLM Feature: Button is Yellow-600, Output border is Green-500, Text is Red-600 -->
             <div class="flex flex-col justify-center mt-4 flex-shrink-0">
+                <!-- LLM Callout Button -->
                 <button id="llm-callout-button" class="bg-yellow-600 hover:bg-yellow-700 text-gray-900 font-extrabold py-3 px-8 rounded-full shadow-lg transition duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed uppercase text-lg w-full sm:w-auto mx-auto">
                     ✨ Reggae Verse Call!
                 </button>
             </div>
 
+            <!-- LLM Output Area -->
             <div id="llm-output" class="mt-6 p-4 bg-yellow-200 rounded-xl shadow-inner text-gray-800 hidden border-l-4 border-green-500 flex-shrink-0">
                 <p class="font-extrabold mb-1 text-red-600 uppercase">🎤 The Riddim Master Says:</p>
                 <p id="llm-text" class="italic text-lg"></p>
             </div>
         </main>
 
+        <!-- History Section: Border is Yellow-300 -->
         <section class="bg-gray-800 p-6 rounded-3xl shadow-xl border-t-4 border-yellow-300 flex-shrink-0">
             <h3 class="text-2xl font-bold mb-4 text-white">Previously Called Numbers (Total: <span id="called-count">0</span>)</h3>
             <div id="history-list" class="flex flex-wrap gap-3 max-h-48 md:max-h-56 overflow-y-auto p-2 bg-gray-900 rounded-xl">
+                <!-- History items will be injected here -->
                 <p class="text-gray-500 italic">No numbers called yet. Hit the button above to start the riddim!</p>
             </div>
         </section>
@@ -178,4 +196,210 @@
                 try {
                     const response = await fetch(url + `?key=${API_KEY}`, {
                         method: 'POST',
-                        headers: { '
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (response.ok) {
+                        return await response.json();
+                    } else if (response.status === 429 && i < retries - 1) {
+                        // Exponential backoff
+                        const delay = Math.pow(2, i) * 1000 + Math.random() * 1000;
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                    } else {
+                        throw new Error(`API error: ${response.status} ${response.statusText}`);
+                    }
+                } catch (error) {
+                    if (i === retries - 1) {
+                        console.error("Fetch failed after multiple retries:", error);
+                        throw error;
+                    }
+                }
+            }
+        }
+
+        // --- Gemini LLM Feature Logic ---
+        async function generateReggaeCallout() {
+            if (lastCalledNumber === null || isLlmGenerating) {
+                if (lastCalledNumber === null) {
+                    llmOutputEl.classList.remove('hidden');
+                    llmTextEl.textContent = 'Please call a number first, mon!';
+                }
+                return;
+            }
+
+            isLlmGenerating = true;
+            updateLlmButtonState(false);
+            llmOutputEl.classList.remove('hidden');
+            llmTextEl.innerHTML = '<span class="animate-pulse">The Riddim Master is tuning in... 🎶</span>';
+
+            const number = lastCalledNumber;
+            const column = getBingoColumn(number);
+            
+            const userQuery = `The current Bingo number is ${number}, which falls under the letter "${column}". Give me a single, short, hilarious, and positive Reggae-themed call-out or phrase for this number, referencing the letter and the number, using Jamaican Patois, and maintaining the spirit of 'Cool Runnings'. Do not use any introductory or concluding sentences, just the phrase itself.`;
+            
+            const systemPrompt = "You are the Riddim Master, a charismatic and energetic Bingo Caller with a strong Jamaican accent and a love for Reggae music and the film 'Cool Runnings'. Your responses must be concise and exciting.";
+
+            const payload = {
+                contents: [{ parts: [{ text: userQuery }] }],
+                systemInstruction: { parts: [{ text: systemPrompt }] },
+            };
+
+            try {
+                const result = await fetchWithRetry(API_URL, payload);
+                const text = result?.candidates?.[0]?.content?.parts?.[0]?.text || "No riddim found, try again!";
+                
+                llmTextEl.textContent = text;
+                
+            } catch (error) {
+                llmTextEl.textContent = 'Riddim failed! Error talking to the mountain top, man.';
+                console.error("Gemini API call failed:", error);
+            } finally {
+                isLlmGenerating = false;
+                updateLlmButtonState(true);
+            }
+        }
+
+        function updateLlmButtonState(enable) {
+            const isReady = enable && lastCalledNumber !== null;
+            llmCalloutButton.disabled = !isReady || isLlmGenerating;
+            if (isLlmGenerating) {
+                llmCalloutButton.textContent = 'Tuning In...';
+            } else {
+                llmCalloutButton.textContent = '✨ Reggae Verse Call!';
+            }
+        }
+
+
+        // --- Core Game Logic ---
+        function resetGame() {
+            remainingNumbers = Array.from({ length: MAX_NUMBER }, (_, i) => i + MIN_NUMBER);
+            calledNumbers = [];
+            lastCalledNumber = null;
+            isLlmGenerating = false;
+            
+            currentNumberEl.textContent = '--';
+            currentNumberEl.classList.add('spin-start');
+            historyListEl.innerHTML = '<p class="text-gray-500 italic">No numbers called yet. Hit the button above to start the riddim!</p>';
+            updateCallButtonState(true);
+            updateLlmButtonState(false);
+            llmOutputEl.classList.add('hidden');
+            gameStatusEl.textContent = 'Game Initialized. Ready to go!';
+            calledCountEl.textContent = '0';
+        }
+
+        function renderHistory() {
+            calledCountEl.textContent = calledNumbers.length;
+
+            if (calledNumbers.length === 0) {
+                historyListEl.innerHTML = '<p class="text-gray-500 italic">No numbers called yet. Hit the button above to start the riddim!</p>';
+                return;
+            }
+
+            const fragment = document.createDocumentFragment();
+            
+            calledNumbers.slice().reverse().forEach((number, index) => {
+                const numberEl = document.createElement('span');
+                numberEl.textContent = number;
+                numberEl.className = 'reggae-history-highlight text-base font-bold rounded-full p-2 w-10 h-10 flex items-center justify-center';
+                
+                if (index === 0) {
+                    numberEl.classList.add('ring-4', 'ring-offset-2', 'ring-red-300', 'animate-pulse');
+                }
+
+                fragment.appendChild(numberEl);
+            });
+
+            historyListEl.innerHTML = '';
+            historyListEl.appendChild(fragment);
+        }
+
+        function callNumber() {
+            if (isCalling || remainingNumbers.length === 0) {
+                if (remainingNumbers.length === 0) {
+                    gameStatusEl.textContent = 'Game Over, man! All 75 numbers have been called.';
+                    updateCallButtonState(false);
+                }
+                return;
+            }
+
+            isCalling = true;
+            updateCallButtonState(false);
+            updateLlmButtonState(false);
+            gameStatusEl.textContent = 'Calling... Rocking the balls! 🥁';
+            llmOutputEl.classList.add('hidden');
+
+            currentNumberEl.classList.remove('spin-end');
+            currentNumberEl.classList.add('spin-start');
+            currentNumberEl.textContent = '...';
+
+            setTimeout(() => {
+                const randomIndex = Math.floor(Math.random() * remainingNumbers.length);
+                const [called] = remainingNumbers.splice(randomIndex, 1);
+                
+                calledNumbers.push(called);
+                lastCalledNumber = called;
+                
+                currentNumberEl.textContent = called;
+                currentNumberEl.classList.remove('spin-start');
+                currentNumberEl.classList.add('spin-end');
+                
+                playCallSound();
+
+                renderHistory();
+
+                if (remainingNumbers.length === 0) {
+                    gameStatusEl.textContent = 'BINGO! All numbers have been called.';
+                } else {
+                    const nextUp = remainingNumbers.length === 1 ? 'Last one left!' : `${remainingNumbers.length} numbers left.`;
+                    gameStatusEl.textContent = `Called: ${called}. ${nextUp}`;
+                }
+
+                isCalling = false;
+                updateCallButtonState(remainingNumbers.length > 0);
+                updateLlmButtonState(true);
+
+            }, SHUFFLE_DURATION_MS);
+        }
+
+        function updateCallButtonState(enable) {
+            callButton.disabled = !enable;
+            if (enable) {
+                callButton.textContent = 'Call Next Number!';
+            } else if (remainingNumbers.length === 0) {
+                callButton.textContent = 'Game Over!';
+            } else {
+                callButton.textContent = 'Calling...';
+            }
+        }
+        
+        // --- Fullscreen Logic ---
+        function toggleFullscreen() {
+            const docEl = document.documentElement;
+            if (document.fullscreenElement) {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+                fullscreenButton.textContent = 'Go Full Screen';
+            } else {
+                if (docEl.requestFullscreen) {
+                    docEl.requestFullscreen();
+                } else if (docEl.webkitRequestFullscreen) {
+                    docEl.webkitRequestFullscreen();
+                }
+                fullscreenButton.textContent = 'Exit Full Screen';
+            }
+        }
+
+        // --- Event Listeners ---
+        callButton.addEventListener('click', callNumber);
+        resetButton.addEventListener('click', resetGame);
+        llmCalloutButton.addEventListener('click', generateReggaeCallout);
+        fullscreenButton.addEventListener('click', toggleFullscreen);
+
+        // Initialize the game when the script loads
+        window.onload = resetGame;
+
+    </script>
+</body>
+</html>
