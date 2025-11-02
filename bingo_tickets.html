@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Printable 75-Ball Bingo Tickets</title>
+    <!-- We're keeping Tailwind for general layout but overriding for B&W print -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         /* General setup for printability */
@@ -119,6 +120,7 @@
     </div>
 
     <div id="ticket-container" class="a4-page">
+        <!-- Tickets will be generated here -->
         <p class="text-center w-full">Generating tickets...</p>
     </div>
 
@@ -126,4 +128,181 @@
         const NUM_TICKETS = 8;
         const NUM_PANELS = 2; // Each ticket has 2 blocks
         const NUM_NUMBERS_PER_PANEL = 15; // 15 numbers per block
-        // Total numbers
+        // Total numbers used per ticket: 2 * 15 = 30.
+        const RANGES = [
+            { name: 'B', min: 1, max: 15 },
+            { name: 'I', min: 16, max: 30 },
+            { name: 'N', min: 31, max: 45 },
+            { name: 'G', min: 46, max: 60 },
+            { name: 'O', min: 61, max: 75 }
+        ];
+
+        // --- Core Generator Logic ---
+
+        function generateStrip() {
+            // 1. Initialize a master pool for ALL numbers (1-75)
+            const masterPool = [];
+            for (let r of RANGES) {
+                for (let n = r.min; n <= r.max; n++) {
+                    masterPool.push(n);
+                }
+            }
+            
+            const allTickets = [];
+            
+            for (let i = 0; i < NUM_TICKETS; i++) {
+                // 1. Draw 30 unique numbers for this one ticket
+                const ticketNumbers = [];
+                // Available numbers is a shuffled copy of the master pool (1-75)
+                const availableNumbers = [...masterPool]; 
+                shuffleArray(availableNumbers);
+                
+                // Draw 30 random numbers from the full 1-75 set for the ticket
+                // This ensures the 30 numbers on the ticket are unique.
+                while (ticketNumbers.length < 30 && availableNumbers.length > 0) {
+                    // Pull the next number from the shuffled pool
+                    const num = availableNumbers.pop();
+                    ticketNumbers.push(num);
+                }
+                
+                // 2. Sort the numbers by B-I-N-G-O column
+                const sortedNumbers = sortNumbersByRange(ticketNumbers);
+
+                // 3. Distribute into two panels (15 each) ensuring B-I-N-G-O rules are respected
+                let panel1Numbers = [];
+                let panel2Numbers = [];
+
+                for (let r of RANGES) {
+                    const colNums = sortedNumbers.filter(n => n >= r.min && n <= r.max);
+                    
+                    // Distribute numbers evenly between the two panels
+                    if (colNums.length > 0) {
+                        const mid = Math.ceil(colNums.length / 2);
+                        // Shuffle column numbers before splitting to randomize which panel gets which numbers
+                        shuffleArray(colNums); 
+                        panel1Numbers.push(...colNums.slice(0, mid));
+                        panel2Numbers.push(...colNums.slice(mid));
+                    }
+                }
+                
+                // Final format and push
+                const ticket = [];
+                ticket.push(formatPanel(panel1Numbers));
+                ticket.push(formatPanel(panel2Numbers));
+                allTickets.push(ticket);
+            }
+
+            return allTickets;
+        }
+
+        /** Formats the flat list of numbers into a 5x3 grid structure (5 columns, 3 rows) */
+        function formatPanel(numbers) {
+            // Sort by B-I-N-G-O column first, then numerically within column
+            numbers.sort((a, b) => {
+                const rangeIndexA = RANGES.findIndex(r => a >= r.min && a <= r.max);
+                const rangeIndexB = RANGES.findIndex(r => b >= r.min && b <= r.max);
+                if (rangeIndexA !== rangeIndexB) return rangeIndexA - rangeIndexB;
+                return a - b;
+            });
+            
+            const columns = [[], [], [], [], []];
+            
+            // Populate the columns array
+            for (let n of numbers) {
+                const rangeIndex = RANGES.findIndex(r => n >= r.min && n <= r.max);
+                columns[rangeIndex].push(n);
+            }
+            
+            // Create the 3x5 grid (rows x columns)
+            const panelGrid = [];
+            for (let r = 0; r < 3; r++) { // 3 rows
+                const row = [];
+                for (let c = 0; c < 5; c++) { // 5 columns
+                    // If a number exists in the column for this row index, use it, otherwise use 'X' (empty)
+                    row.push(columns[c][r] !== undefined ? columns[c][r] : 'X');
+                }
+                panelGrid.push(row);
+            }
+            
+            return panelGrid;
+        }
+
+        /** Sorts numbers by their B-I-N-G-O range */
+        function sortNumbersByRange(numbers) {
+            return numbers.sort((a, b) => {
+                const rangeIndexA = RANGES.findIndex(r => a >= r.min && a <= r.max);
+                const rangeIndexB = RANGES.findIndex(r => b >= r.min && b <= r.max);
+                if (rangeIndexA !== rangeIndexB) return rangeIndexA - rangeIndexB;
+                return a - b;
+            });
+        }
+        
+        /** Standard Fisher-Yates shuffle */
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        // --- DOM Rendering ---
+
+        function renderTickets(allTickets) {
+            const container = document.getElementById('ticket-container');
+            container.innerHTML = '';
+            
+            const headerRow = ['B', 'I', 'N', 'G', 'O'];
+
+            allTickets.forEach((ticketData, index) => {
+                const ticketEl = document.createElement('div');
+                ticketEl.className = 'ticket';
+                
+                // Header
+                const header = document.createElement('div');
+                header.className = 'ticket-header';
+                header.textContent = `Cool Runnings Pub & Grill - Ticket #${index + 1}`;
+                ticketEl.appendChild(header);
+
+                const blocksContainer = document.createElement('div');
+                blocksContainer.className = 'ticket-blocks-container';
+                
+                // Panels (Blocks)
+                ticketData.forEach(panelGrid => {
+                    const blockEl = document.createElement('div');
+                    blockEl.className = 'number-block';
+                    
+                    // Render header row B-I-N-G-O
+                    headerRow.forEach(letter => {
+                        const cell = document.createElement('div');
+                        cell.className = 'number-cell header-cell';
+                        cell.textContent = letter;
+                        blockEl.appendChild(cell);
+                    });
+                    
+                    // Render 3x5 grid (15 numbers)
+                    panelGrid.forEach(row => {
+                        row.forEach(cellValue => {
+                            const cell = document.createElement('div');
+                            // No colors, just clear black border and white background
+                            cell.className = 'number-cell'; 
+                            cell.textContent = cellValue === 'X' ? '' : cellValue;
+                            blockEl.appendChild(cell);
+                        });
+                    });
+                    
+                    blocksContainer.appendChild(blockEl);
+                });
+                
+                ticketEl.appendChild(blocksContainer);
+                container.appendChild(ticketEl);
+            });
+        }
+
+        // Run the generator and render on load
+        window.onload = () => {
+            const allTickets = generateStrip();
+            renderTickets(allTickets);
+        };
+    </script>
+</body>
+</html>
