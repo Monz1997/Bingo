@@ -83,7 +83,8 @@
             margin: 20px auto;
             display: block;
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
-            transition: transform 5s cubic-bezier(0.25, 0.1, 0.25, 1); /* Spinning transition */
+            /* Important: Keep transition here for spinning effect */
+            transition: transform 5s cubic-bezier(0.25, 0.1, 0.25, 1); 
         }
 
         /* Pointer (small triangle at the top) */
@@ -218,9 +219,8 @@
         const SHUFFLE_DURATION_MS = 500;
         
         // --- Gemini API Configuration (Restored) ---
-        // NOTE: This API Key setup needs to be completed by you for the LLM feature to work.
         const API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent';
-        const API_KEY = "YOUR_API_KEY_HERE"; // Canvas will inject this token
+        const API_KEY = "YOUR_API_KEY_HERE"; 
         const MAX_RETRIES = 5;
 
         let remainingNumbers = [];
@@ -274,7 +274,7 @@
         }
 
         // ===================================
-        // --- DARE WHEEL LOGIC (Unchanged) ---
+        // --- DARE WHEEL LOGIC (FIXED SPIN) ---
         // ===================================
         const dares = [
             "Speak with an opera singer's voice for 5 min.",
@@ -337,26 +337,27 @@
                 ctx.fillStyle = 'white';
                 ctx.font = 'bold 10px Inter, sans-serif';
                 ctx.textAlign = 'right';
-                // Adjust text position slightly to keep it within the wheel.
                 ctx.fillText(dares[i], wheelRadius * 0.9, 0); 
                 ctx.restore();
             }
         }
 
-        // --- Modal Control Functions ---
+        // --- Modal Control Functions (Unchanged) ---
         window.openDareModal = function() {
             dareModal.style.display = 'flex';
             dareSpinButton.textContent = "SPIN THE RASTA WHEEL!";
             dareSpinButton.disabled = false;
             dareTextEl.textContent = "Spin the wheel to get your dare!";
             drawWheel();
+            // Apply the current rotation so the wheel starts from where it stopped last time
+            wheelCanvas.style.transform = `rotate(${currentRotation}deg)`;
         }
 
         window.closeDareModal = function() {
             dareModal.style.display = 'none';
         }
 
-        // --- Spinning Logic ---
+        // --- Spinning Logic (FIXED) ---
         function startSpin() {
             if (dareSpinning) return;
             dareSpinning = true;
@@ -367,27 +368,27 @@
             const numDares = dares.length;
             const anglePerDare = 360 / numDares;
             
+            // 1. Choose a random winning dare (index)
             const finalDareIndex = Math.floor(Math.random() * numDares);
             
-            const randomExtraRotations = Math.floor(Math.random() * 6) + 5; 
-            // 90 degrees points to the top, anglePerDare / 2 adjusts for the sector's center
-            // The canvas starts drawing at 3 o'clock (0 degrees). We want the pointer (at 12 o'clock, which is -90 degrees in math, or 270 degrees) to land on the segment.
-            // A more reliable offset for 12 o'clock is 270 degrees (3/4 of a circle)
-            const pointerOffset = 270; 
+            // 2. Calculate the target rotation (in degrees)
+            // The pointer is at 270 degrees on the canvas. 
+            const pointerAngle = 270; 
             
-            // Calculate where the chosen segment's *center* is when the wheel is at 0 rotation:
-            const segmentCenterAtZero = finalDareIndex * anglePerDare + (anglePerDare / 2);
+            // Calculate where the chosen segment's *middle* is if the wheel were at 0 rotation.
+            const segmentCenterAngle = finalDareIndex * anglePerDare + (anglePerDare / 2);
 
-            // We want the wheel to rotate so that this center lands at the pointer.
-            // The required rotation is (Pointer Location) - (Segment Center)
-            let targetAngle = pointerOffset - segmentCenterAtZero;
+            // We need to rotate the wheel so that the segmentCenterAngle aligns with the pointerAngle (270).
+            let rotationNeeded = pointerAngle - segmentCenterAngle;
             
-            // Add full rotations for a long spin
-            targetAngle += (randomExtraRotations * 360); 
+            // Add a safety margin to ensure the wheel overshoots and settles: 
+            // Add a random number of full spins (e.g., 5-10)
+            const randomExtraRotations = Math.floor(Math.random() * 6) + 5; 
+            const finalRotation = rotationNeeded + (randomExtraRotations * 360);
             
             // Set the final rotation property on the canvas
             wheelCanvas.style.transition = 'transform 5s cubic-bezier(0.25, 0.1, 0.25, 1)';
-            wheelCanvas.style.transform = `rotate(${targetAngle}deg)`; // Use a positive rotation for clarity
+            wheelCanvas.style.transform = `rotate(${finalRotation}deg)`;
 
             // 3. Wait for the spin to finish and display the result
             setTimeout(() => {
@@ -398,9 +399,12 @@
                 const finalDare = dares[finalDareIndex];
                 dareTextEl.innerHTML = `🎉 <strong>YOUR DARE IS:</strong> 🎉<br><span style="color: #c0392b; font-size: 1.1em;">${finalDare}</span>`;
                 
-                // Reset transition for next spin
+                // Store the final position (0-360) for the next spin's starting point
+                currentRotation = finalRotation % 360; 
+                
+                // Reset transition and apply the new stored rotation instantly to prepare for the next spin
+                // This prevents the wheel from 'snapping' back to 0 before the next spin starts.
                 wheelCanvas.style.transition = 'none';
-                currentRotation = targetAngle % 360;
                 wheelCanvas.style.transform = `rotate(${currentRotation}deg)`;
 
             }, 5000); // 5 seconds (must match the CSS transition time)
@@ -411,7 +415,7 @@
         // ===================================
 
 
-        // --- Utility Functions (Restored from previous working code) ---
+        // --- Utility Functions (Modified getBingoColumn/renderHistory/CallNumber) ---
         function getBingoColumn(number) {
             if (number >= 1 && number <= 15) return 'B';
             if (number >= 16 && number <= 30) return 'I';
@@ -435,10 +439,8 @@
             llmCalloutButton.textContent = isLlmGenerating ? 'Generating Verse...' : '✨ Reggae Verse Call!';
         }
 
+        // Placeholder functions for LLM features (Restored/Unchanged from last fix)
         async function fetchWithRetry(url, options, retries = MAX_RETRIES) {
-            // Placeholder for fetch logic (required for LLM feature)
-            // Functionality is restored to avoid `fetchWithRetry is not defined` error
-            // Actual implementation would be in a google:search block, but since I cannot call the API, I will mock the success.
             return {
                 ok: true,
                 json: async () => ({
@@ -458,19 +460,20 @@
             llmOutputEl.classList.add('hidden');
             llmTextEl.textContent = 'Riddim Master on the mic...';
 
-            // Placeholder for API call (Restored)
             setTimeout(() => {
                 const column = getBingoColumn(lastCalledNumber);
                 const number = lastCalledNumber;
-                const mockResponse = `Ya mon, number **${column}-${number}** means one love and good vibes! Peace and blessings to the winner!`;
+                // Note: The LLM output still uses the column letter for context, but the primary display is numerical.
+                const mockResponse = `Ya mon, number **${number}** is under **${column}** and means one love and good vibes! Peace and blessings to the winner!`;
                 
                 llmTextEl.innerHTML = mockResponse.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
                 llmOutputEl.classList.remove('hidden');
                 isLlmGenerating = false;
                 updateLlmButtonState(true);
-            }, 1500); // Simulate network delay
+            }, 1500); 
         }
-
+        
+        // **MODIFIED:** Removed column letter from history display
         function renderHistory() {
             if (calledNumbers.length === 0) {
                 historyListEl.innerHTML = '<p class="text-gray-500 italic">No numbers called yet. Hit the button above to start the riddim!</p>';
@@ -481,13 +484,14 @@
             calledCountEl.textContent = calledNumbers.length;
             
             const historyHtml = calledNumbers.map(number => {
-                const column = getBingoColumn(number);
-                return `<span class="reggae-history-highlight px-3 py-1 rounded-full text-sm font-bold shadow-lg">${column}-${number}</span>`;
+                // Now displays ONLY the number
+                return `<span class="reggae-history-highlight px-3 py-1 rounded-full text-sm font-bold shadow-lg">${number}</span>`;
             }).join('');
 
             historyListEl.innerHTML = historyHtml;
         }
 
+        // **MODIFIED:** Removed column letter from display logic
         async function callNumber() {
             if (isCalling || remainingNumbers.length === 0) return;
             isCalling = true;
@@ -498,10 +502,10 @@
             currentNumberEl.classList.add('spin-start');
             gameStatusEl.textContent = 'Shuffling the numbers...';
             
-            // Shuffling effect for 500ms
+            // Shuffling effect for 500ms (displaying only random numbers)
             const interval = setInterval(() => {
                 const tempNum = Math.floor(Math.random() * (MAX_NUMBER - MIN_NUMBER + 1)) + MIN_NUMBER;
-                currentNumberEl.textContent = getBingoColumn(tempNum) + '-' + tempNum;
+                currentNumberEl.textContent = tempNum; // Only display number
             }, 50);
 
             setTimeout(async () => {
@@ -516,10 +520,12 @@
                 
                 // 2. Display the result
                 await playCallSound();
-                currentNumberEl.textContent = getBingoColumn(newNumber) + '-' + newNumber;
+                currentNumberEl.textContent = newNumber; // Only display number
                 currentNumberEl.classList.remove('spin-start');
                 currentNumberEl.classList.add('spin-end');
-                gameStatusEl.textContent = `New Call: ${getBingoColumn(newNumber)}-${newNumber}!`;
+                
+                const column = getBingoColumn(newNumber);
+                gameStatusEl.textContent = `New Call: ${newNumber} (under ${column})!`; // Keep letter in status for context
 
                 // 3. Update UI
                 renderHistory();
@@ -549,6 +555,7 @@
             calledNumbers = [];
             lastCalledNumber = null;
             isLlmGenerating = false;
+            currentRotation = 0; // Reset wheel rotation state
             
             currentNumberEl.textContent = '--';
             currentNumberEl.classList.add('spin-start');
