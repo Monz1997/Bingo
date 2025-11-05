@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dare Spin Wheel</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; padding: 20px; background-color: #f4f4f4; }
+        h1 { color: #e74c3c; }
+        #dareDisplay { margin-top: 30px; padding: 25px; border: 3px solid #3498db; border-radius: 10px; min-height: 120px; background-color: white; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        #dareText { 
+            font-size: 1.6em; 
+            font-weight: bold; 
+            color: #2c3e50; 
+            transition: all 0.1s ease-out; /* For spin effect */
+        }
+        .spin-button { 
+            background-color: #2ecc71; /* Green */
+            color: white; 
+            border: none; 
+            padding: 15px 30px; 
+            font-size: 1.2em; 
+            border-radius: 50px; 
+            cursor: pointer; 
+            transition: background-color 0.3s, transform 0.1s; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        }
+        .spin-button:hover { 
+            background-color: #27ae60; 
+            transform: translateY(-2px);
+        }
+        .spin-button:disabled {
+            background-color: #95a5a6;
+            cursor: wait;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎯 Fun Dare Selector</h1>
+    <p>A little extra fun while we wait for the next number!</p>
+    
+    <button class="spin-button" onclick="selectRandomDare()">
+        SPIN AND SELECT DARE
+    </button>
+    
+    <div id="dareDisplay">
+        <p id="dareText">Click the button to spin and get a dare!</p>
+    </div>
+
+    <script>
+        const dares = [
+            "Speak with an **opera singer's voice** for the next five minutes.",
+            "Do a **dramatic reading** of a shopping list or a random text message.",
+            "Do the **Macarena** dance alone in the middle of the room.",
+            "Walk like a **penguin** to the kitchen (or another designated area) and back.",
+            "Give a loud, exaggerated **evil villain laugh** for 10 seconds.",
+            "Do a **super-slow high-five** with another player.",
+            "Walk on your **knees** until your next turn.",
+            "Try to **catch a piece of food** in your mouth that a player drops from above your head.",
+            "Do a **silly dance** whenever someone says the word \"the\" for the next round.",
+            "**Jump up and down** on one foot while flapping your arms like a chicken.",
+            "Walk around with a **pillow under your shirt** pretending to be pregnant for the next five minutes.",
+            "Run outside and **yell \"Woohoo!\"** as loud as you can.",
+            "Perform your best **gymnast floor routine** with a dramatic finish pose.",
+            "Try to **lift another player** (safely, like a brief piggyback ride) while singing \"Happy Birthday.\"",
+            "**Ask a pillow** for relationship advice.",
+            "Create a **secret code word** and use it whenever you want to scratch your nose for the rest of the game.",
+            "**Give a one-minute TED Talk** on the importance of your favorite snack food.",
+            "**Go to a window** and wave enthusiastically at the first person/car you see.",
+            "**Do a belly dance** for 15 seconds.",
+            "**Eat a spoonful of a mystery condiment** (like mustard or jam) chosen by the group.",
+            "**Take a bite of a raw lemon** and try to keep a straight face.",
+            "**Hold water in your mouth** while everyone tries to make you laugh (spitting is a fail!).",
+            "**Talk without closing your mouth** for the next 60 seconds.",
+            "**Pretend to eat invisible spaghetti** dramatically.",
+            "Give a sincere compliment to every other person in the room.",
+            "Have a two-minute conversation with an inanimate object (like a pillow or lamp) as if it were a long-lost friend.",
+            "Call a random family member and tell them a completely made-up, absurd story (e.g., about adopting a pet moose).",
+            "High-five a wall five times while loudly saying its name (e.g., \"High-five, Wall!\").",
+            "Hop on one foot while reciting the entire alphabet backwards.",
+            "Do 10 jumping jacks while singing your favorite nursery rhyme.",
+            "Balance a book (or a similar object) on your head and walk to the other side of the room and back.",
+            "Imitate a statue for one minute while everyone tries to make you laugh."
+        ];
+
+        function selectRandomDare() {
+            const button = document.querySelector('.spin-button');
+            button.disabled = true;
+            button.textContent = "Spinning...";
+
+            const display = document.getElementById('dareText');
+            const totalSpinDuration = 3000; // 3 seconds of spinning
+            const startTime = Date.now();
+
+            function spinEffect() {
+                if (Date.now() - startTime < totalSpinDuration) {
+                    // Pick and display a random dare quickly to simulate a spin
+                    const randomIndex = Math.floor(Math.random() * dares.length);
+                    display.innerHTML = `**${dares[randomIndex]}**`;
+                    
+                    // Call itself again for the next 'spin' frame
+                    requestAnimationFrame(spinEffect);
+                } else {
+                    // Stop spinning and select the final dare
+                    const finalIndex = Math.floor(Math.random() * dares.length);
+                    const finalDare = dares[finalIndex];
+                    
+                    display.innerHTML = `🎉 **YOUR DARE IS:** 🎉<br><br><span style="color: #c0392b; font-size: 1.2em;">${finalDare}</span>`;
+                    
+                    button.textContent = "Spin Again!";
+                    button.disabled = false;
+                }
+            }
+
+            // Start the spin
+            spinEffect();
+        }
+    </script>
+</body>
+</html>
