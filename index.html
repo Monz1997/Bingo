@@ -43,7 +43,7 @@
             transform: translateY(-2px);
         }
 
-        /* Animation Classes */
+        /* Animation Classes (Bingo Number) */
         .spin-start {
             opacity: 0;
             transform: scale(0.5) rotate(0deg);
@@ -55,7 +55,7 @@
             transition: all 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
         }
 
-        /* --- NEW MODAL/WHEEL STYLES --- */
+        /* --- DARE MODAL STYLES --- */
         #dare-modal {
             position: fixed;
             top: 0;
@@ -68,42 +68,22 @@
         }
         #dare-modal-content {
             width: 90%;
-            max-width: 650px; /* Increased size to fit the wheel */
+            max-width: 450px; /* Adjusted size for block list */
             background-color: #fff;
             padding: 30px;
             border-radius: 15px;
             box-shadow: 0 10px 25px rgba(255, 0, 0, 0.5);
             animation: fadeIn 0.3s ease-out;
         }
-
-        /* Canvas Style - **CRITICAL FIX APPLIED HERE** */
-        #wheelCanvas {
-            border: 5px solid #FFD700;
-            border-radius: 50%;
-            margin: 20px auto;
-            display: block;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
-            /* Important: Keep transition here for spinning effect */
-            transition: transform 5s cubic-bezier(0.25, 0.1, 0.25, 1); 
-        }
-
-        /* Pointer (small triangle at the top) */
-        #wheel-pointer {
-            width: 0;
-            height: 0;
-            border-left: 15px solid transparent;
-            border-right: 15px solid transparent;
-            border-top: 25px solid #FF0000; /* Red pointer */
-            position: absolute;
-            top: 0;
-            left: 50%;
-            transform: translate(-50%, -100%);
-            z-index: 60;
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
         }
 
         .dare-spin-button {
-            background-color: #2ecc71; /* Green */
-            color: white;
+            background-color: #008000; /* Cool Runnings Green */
+            color: #FFD700; /* Cool Runnings Yellow */
             border: none;
             padding: 12px 25px;
             font-size: 1.1em;
@@ -114,7 +94,7 @@
             text-transform: uppercase;
         }
         .dare-spin-button:hover {
-            background-color: #27ae60;
+            background-color: #006400; /* Darker Green */
             transform: translateY(-2px);
         }
         .dare-spin-button:disabled {
@@ -122,9 +102,91 @@
             cursor: wait;
         }
         
-        @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.9); }
-            to { opacity: 1; transform: scale(1); }
+        /* --- SLOT MACHINE BLOCK STYLES (COOL RUNNINGS THEME) --- */
+        #dare-reel-container {
+            height: 60px; /* Only one dare block height visible */
+            overflow: hidden;
+            border: 4px solid #FF0000; /* Cool Runnings Red Border */
+            background-color: #000000; /* Black background */
+            border-radius: 8px;
+            position: relative;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        #dare-reel {
+            position: absolute;
+            top: 0;
+            width: 100%;
+            transition: transform 4s cubic-bezier(0.25, 0.1, 0.25, 1); /* Slot machine easing */
+        }
+        
+        .dare-block {
+            height: 60px; /* Fixed height for each block */
+            line-height: 60px; /* Vertically center text */
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #FFD700; /* Cool Runnings Yellow text */
+            background-color: #008000; /* Cool Runnings Green background */
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            padding: 0 10px;
+            text-shadow: 1px 1px 0px #000000; /* Black text shadow for definition */
+        }
+
+        /* Final Result Pop-up (Hidden by default) - COOL RUNNINGS THEME */
+        #final-dare-popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            z-index: 100;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        #final-dare-content {
+            background: linear-gradient(135deg, #008000, #FFD700, #FF0000); /* Green, Yellow, Red Gradient */
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            color: #000000; /* Default text black for contrast */
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
+            animation: popIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            border: 5px solid #000000; /* Black border */
+        }
+        
+        #final-dare-content h3 {
+            color: #000000; /* Black for header */
+            text-shadow: 2px 2px 0px #FFD700; /* Yellow shadow */
+        }
+
+        #final-dare-content p {
+            color: #000000; /* Black for 'Your Dare is' */
+        }
+
+        #popup-dare-text {
+            background-color: #FF0000; /* Red background for the dare text */
+            color: #FFD700; /* Yellow text for the dare */
+            text-shadow: 1px 1px 0px #000000; /* Black shadow */
+        }
+
+        #final-dare-content button {
+            background-color: #008000; /* Green button */
+            color: #FFD700; /* Yellow text */
+        }
+        #final-dare-content button:hover {
+            background-color: #006400; /* Darker green hover */
+            color: white;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.5); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
         }
     </style>
 </head>
@@ -187,29 +249,39 @@
         </section>
 
     </div>
-
+    
     <div id="dare-modal" class="flex items-center justify-center">
         <div id="dare-modal-content" class="text-center">
-            <h2 class="text-3xl font-bold text-red-600 mb-4">🎯 Fun Dare Selector</h2>
-            <p class="mb-4 text-gray-600">Give the wheel a spin and respect the rules, mon!</p>
+            <h2 class="text-3xl font-bold text-red-600 mb-4">🎯 Choose Your Fate!</h2>
+            <p class="mb-4 text-gray-600">Give the blocks a spin and see what dare the fates have in store for you, mon!</p>
 
-            <div class="relative inline-block">
-                <div id="wheel-pointer"></div>
-                <canvas id="wheelCanvas" width="400" height="400"></canvas>
+            <div id="dare-reel-container" class="my-6">
+                <div id="dare-reel">
+                    </div>
             </div>
 
             <div id="dareDisplay" class="border-4 border-dashed border-blue-400 p-3 rounded-lg bg-gray-50 mt-4">
-                <p id="dareText" class="font-bold text-lg min-h-8">Spin the wheel to get your dare!</p>
+                <p id="dareText" class="font-bold text-lg min-h-8">Click 'Spin' to select a random dare!</p>
             </div>
             
             <div class="mt-6 space-y-3">
                 <button id="dare-spin-button" class="dare-spin-button w-full" onclick="startSpin()">
-                    SPIN THE RASTA WHEEL!
+                    SPIN THE BLOCKS!
                 </button>
                 <button id="close-dare-button" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-5 rounded-full w-full" onclick="closeDareModal()">
-                    Close Wheel (Dare Complete)
+                    Close Dare
                 </button>
             </div>
+        </div>
+    </div>
+    <div id="final-dare-popup" class="flex items-center justify-center">
+        <div id="final-dare-content">
+            <h3 class="text-4xl font-extrabold mb-4">🎉 CONGRATULATIONS! 🎉</h3>
+            <p class="text-2xl font-bold mb-6">Your Dare is:</p>
+            <p id="popup-dare-text" class="text-3xl font-black mb-8 p-3 rounded-lg shadow-xl"></p>
+            <button class="font-bold py-3 px-8 rounded-full transition" onclick="hideDarePopup()">
+                Accept Fate!
+            </button>
         </div>
     </div>
     <script type="module">
@@ -217,7 +289,8 @@
         const MIN_NUMBER = 1;
         const MAX_NUMBER = 75;
         const SHUFFLE_DURATION_MS = 500;
-        
+        const DARE_BLOCK_HEIGHT = 60; // Must match CSS .dare-block height
+
         // --- Gemini API Configuration (Restored) ---
         const API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent';
         const API_KEY = "YOUR_API_KEY_HERE"; 
@@ -241,17 +314,16 @@
         const llmTextEl = document.getElementById('llm-text');
         const fullscreenButton = document.getElementById('fullscreen-button');
         
-        // --- DARE MODAL ELEMENTS ---
+        // --- DARE MODAL ELEMENTS (UPDATED) ---
         const dareModal = document.getElementById('dare-modal');
         const dareTextEl = document.getElementById('dareText');
         const dareSpinButton = document.getElementById('dare-spin-button');
-        const wheelCanvas = document.getElementById('wheelCanvas');
-        const ctx = wheelCanvas.getContext('2d');
-        const wheelCenter = wheelCanvas.width / 2;
-        const wheelRadius = wheelCanvas.width / 2;
-        let currentRotation = 0; // Tracks the wheel's rotation angle
-        let dareSpinning = false;
+        const dareReelEl = document.getElementById('dare-reel');
+        const finalDarePopup = document.getElementById('final-dare-popup');
+        const popupDareTextEl = document.getElementById('popup-dare-text');
 
+        let dareSpinning = false;
+        
         // --- Tone.js Setup for Sound Effect (Unchanged) ---
         const synth = new Tone.PolySynth(Tone.Synth, {
             oscillator: { type: "square" },
@@ -274,7 +346,7 @@
         }
 
         // ===================================
-        // --- DARE WHEEL LOGIC (FIXED SPIN) ---
+        // --- DARE BLOCK LOGIC (NEW) ---
         // ===================================
         const dares = [
             "Speak with an opera singer's voice for 5 min.",
@@ -311,84 +383,68 @@
             "Imitate a statue for one minute."
         ];
         
-        const wheelColors = ['#FF0000', '#008000', '#FFD700', '#000000']; // Red, Green, Yellow, Black
-
-        function drawWheel() {
-            ctx.clearRect(0, 0, wheelCanvas.width, wheelCanvas.height);
-            const numDares = dares.length;
-            const arcSize = (2 * Math.PI) / numDares;
-
-            for (let i = 0; i < numDares; i++) {
-                const startAngle = i * arcSize;
-                const endAngle = (i + 1) * arcSize;
-                const colorIndex = i % wheelColors.length;
-
-                // Draw the sector
-                ctx.beginPath();
-                ctx.arc(wheelCenter, wheelCenter, wheelRadius, startAngle, endAngle);
-                ctx.lineTo(wheelCenter, wheelCenter);
-                ctx.fillStyle = wheelColors[colorIndex];
-                ctx.fill();
-
-                // Draw the text (Dare)
-                ctx.save();
-                ctx.translate(wheelCenter, wheelCenter);
-                ctx.rotate(startAngle + arcSize / 2);
-                ctx.fillStyle = 'white';
-                ctx.font = 'bold 10px Inter, sans-serif';
-                ctx.textAlign = 'right';
-                ctx.fillText(dares[i], wheelRadius * 0.9, 0); 
-                ctx.restore();
-            }
+        // --- Draw the Dare Blocks ---
+        function drawDareBlocks() {
+            // Duplicate dares for the scrolling effect (at least 3-4 times)
+            const reelContent = [...dares, ...dares, ...dares, ...dares];
+            
+            // Render the blocks
+            dareReelEl.innerHTML = reelContent.map(dare => 
+                `<div class="dare-block">${dare}</div>`
+            ).join('');
+            
+            // Reset position instantly
+            dareReelEl.style.transition = 'none';
+            dareReelEl.style.transform = `translateY(0px)`;
         }
 
-        // --- Modal Control Functions (Unchanged) ---
+        // --- Modal Control Functions (Updated) ---
         window.openDareModal = function() {
             dareModal.style.display = 'flex';
-            dareSpinButton.textContent = "SPIN THE RASTA WHEEL!";
+            dareSpinButton.textContent = "SPIN THE BLOCKS!";
             dareSpinButton.disabled = false;
-            dareTextEl.textContent = "Spin the wheel to get your dare!";
-            drawWheel();
-            // Apply the current rotation so the wheel starts from where it stopped last time
-            wheelCanvas.style.transform = `rotate(${currentRotation}deg)`;
+            dareTextEl.textContent = "Click 'Spin' to select a random dare!";
+            drawDareBlocks();
         }
 
         window.closeDareModal = function() {
             dareModal.style.display = 'none';
         }
+        
+        window.hideDarePopup = function() {
+            finalDarePopup.style.display = 'none';
+            closeDareModal();
+        }
 
-        // --- Spinning Logic (CONFIRMED WORKING) ---
+        // --- Spinning Logic (NEW) ---
         function startSpin() {
             if (dareSpinning) return;
             dareSpinning = true;
             dareSpinButton.disabled = true;
-            dareSpinButton.textContent = "WHEEL IN MOTION...";
-            dareTextEl.textContent = "Spinning... Good luck, mon!";
+            dareSpinButton.textContent = "BLOCKS ROTATING...";
+            dareTextEl.textContent = "Selecting your fate... respect the rules!";
             
             const numDares = dares.length;
-            const anglePerDare = 360 / numDares;
+            const reelContentLength = numDares * 4; // 4 sets of dares in the reel
             
-            // 1. Choose a random winning dare (index)
+            // 1. Choose a random winning dare (index in the original array)
             const finalDareIndex = Math.floor(Math.random() * numDares);
+            const finalDare = dares[finalDareIndex];
             
-            // 2. Calculate the target rotation (in degrees)
-            // The pointer is visually centered at the top, which is 270 degrees on the canvas coordinate system.
-            const pointerAngle = 270; 
+            // 2. Calculate the target position: 
+            // - The reel starts at index 0. We want the final dare block to land exactly in the center of the viewport (which is the top of the container, or translateY(0))
+            // - We land on the *third* set of dares for a long, visible spin.
+            // - The target position is (finalDareIndex + 2 * numDares) positions from the top.
             
-            // Calculate where the chosen segment's *middle* is if the wheel were at 0 rotation.
-            const segmentCenterAngle = finalDareIndex * anglePerDare + (anglePerDare / 2);
+            const positionInThirdSet = finalDareIndex + (2 * numDares);
+            const distanceToScroll = positionInThirdSet * DARE_BLOCK_HEIGHT;
+            
+            // We scroll *up*, so the transform is negative.
+            const finalScroll = -distanceToScroll; 
 
-            // We need to rotate the wheel so that the segmentCenterAngle aligns with the pointerAngle (270).
-            let rotationNeeded = pointerAngle - segmentCenterAngle;
-            
-            // Add a safety margin to ensure the wheel overshoots and settles: 
-            // Add a random number of full spins (e.g., 5-10)
-            const randomExtraRotations = Math.floor(Math.random() * 6) + 5; 
-            const finalRotation = rotationNeeded + (randomExtraRotations * 360);
-            
-            // Set the final rotation property on the canvas to trigger the CSS transition
-            wheelCanvas.style.transition = 'transform 5s cubic-bezier(0.25, 0.1, 0.25, 1)';
-            wheelCanvas.style.transform = `rotate(${finalRotation}deg)`;
+            // Apply transition for the spin
+            dareReelEl.style.transition = 'transform 4s cubic-bezier(0.25, 0.1, 0.25, 1)';
+            dareReelEl.style.transform = `translateY(${finalScroll}px)`;
 
             // 3. Wait for the spin to finish and display the result
             setTimeout(() => {
@@ -396,26 +452,29 @@
                 dareSpinButton.disabled = false;
                 dareSpinButton.textContent = "SPIN AGAIN!";
 
-                const finalDare = dares[finalDareIndex];
-                dareTextEl.innerHTML = `🎉 <strong>YOUR DARE IS:</strong> 🎉<br><span style="color: #c0392b; font-size: 1.1em;">${finalDare}</span>`;
-                
-                // Store the final position (0-360) for the next spin's starting point
-                currentRotation = finalRotation % 360; 
-                
-                // Instantly reset transition and apply the new stored rotation 
-                // to prevent the wheel from 'snapping' back to 0 before the next spin starts.
-                wheelCanvas.style.transition = 'none';
-                wheelCanvas.style.transform = `rotate(${currentRotation}deg)`;
+                // Update the hidden reel text (optional, but good for confirmation)
+                dareTextEl.innerHTML = `Dare Selected! Your fate is: <span style="color: #c0392b;">${finalDare}</span>`;
 
-            }, 5000); // 5 seconds (must match the CSS transition time)
+                // Show the pop-up
+                popupDareTextEl.textContent = finalDare;
+                finalDarePopup.style.display = 'flex';
+                
+                // 4. Clean up the reel for the next spin: 
+                // Instantly reset the reel to the beginning of the *fourth* set of dares, 
+                // which visually looks like the reel is ready to spin again from the new position.
+                const resetScroll = -(finalDareIndex + (3 * numDares)) * DARE_BLOCK_HEIGHT;
+                dareReelEl.style.transition = 'none';
+                dareReelEl.style.transform = `translateY(${resetScroll}px)`;
+
+            }, 4000); // 4 seconds (must match the CSS transition time)
         }
         
         // ===================================
-        // --- END DARE WHEEL LOGIC ---
+        // --- END DARE BLOCK LOGIC ---
         // ===================================
 
 
-        // --- Utility Functions (Modified getBingoColumn/renderHistory/CallNumber) ---
+        // --- Utility Functions (Game Logic Unchanged) ---
         function getBingoColumn(number) {
             if (number >= 1 && number <= 15) return 'B';
             if (number >= 16 && number <= 30) return 'I';
@@ -439,20 +498,7 @@
             llmCalloutButton.textContent = isLlmGenerating ? 'Generating Verse...' : '✨ Reggae Verse Call!';
         }
 
-        async function fetchWithRetry(url, options, retries = MAX_RETRIES) {
-            // This is a placeholder for the actual API call
-            return {
-                ok: true,
-                json: async () => ({
-                    candidates: [{
-                        content: {
-                            parts: [{ text: "Ya mon, number **${column}-${number}** means one love and good vibes! Peace and blessings to the winner!" }]
-                        }
-                    }]
-                })
-            };
-        }
-
+        // Mock LLM function (as the user does not have an API key)
         async function generateReggaeCallout() {
             if (!lastCalledNumber || isLlmGenerating) return;
             isLlmGenerating = true;
@@ -464,7 +510,7 @@
                 const column = getBingoColumn(lastCalledNumber);
                 const number = lastCalledNumber;
                 
-                // The LLM output now uses **${number}** and puts the column letter in the context for the user.
+                // Only number in the main callout text
                 const mockResponse = `Ya mon, number **${number}** is under **${column}** and means one love and good vibes! Peace and blessings to the winner!`;
                 
                 llmTextEl.innerHTML = mockResponse.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
@@ -511,7 +557,7 @@
                 clearInterval(interval);
 
                 // 1. Pick a number
-                const randomIndex = Math.floor(RNG.random() * remainingNumbers.length); // Using a more robust RNG in the full code
+                const randomIndex = Math.floor(Math.random() * remainingNumbers.length);
                 const newNumber = remainingNumbers.splice(randomIndex, 1)[0];
                 calledNumbers.push(newNumber);
                 calledNumbers.sort((a, b) => a - b);
@@ -555,7 +601,6 @@
             calledNumbers = [];
             lastCalledNumber = null;
             isLlmGenerating = false;
-            currentRotation = 0; // Reset wheel rotation state
             
             currentNumberEl.textContent = '--';
             currentNumberEl.classList.add('spin-start');
@@ -575,9 +620,6 @@
 
         // Initialize the game when the script loads
         window.onload = resetGame;
-
-        // Draw the wheel initially when the page loads (it's hidden, but ready)
-        window.addEventListener('DOMContentLoaded', drawWheel);
     </script>
 </body>
-</html>l 
+</html>
