@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cool Runnings Pub & Grill Bingo Caller (1-75)</title>
-    <!-- Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Load Tone.js for sound effects -->
     <script src="https://unpkg.com/tone@14.7.77/build/Tone.js"></script>
     <style>
         /* Custom font for a more thematic feel, though Inter is used as a reliable fallback */
@@ -58,72 +56,60 @@
         }
     </style>
 </head>
-<!-- h-screen ensures it fills the viewport vertically -->
 <body class="h-screen flex flex-col p-4 md:p-8">
     
-    <!-- Top-Right Control Buttons: Includes Link to Ticket Page -->
     <div class="absolute top-2 right-2 space-x-2 z-10">
-        <!-- New Tickets Link Button -->
         <a href="bingo_tickets.html" class="bg-green-600 hover:bg-green-700 text-white text-xs font-bold py-2 px-3 rounded-lg shadow-md transition duration-200 inline-flex items-center">
             🎟️ Get Tickets
         </a>
-        <!-- Fullscreen Button -->
         <button id="fullscreen-button" class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold py-2 px-3 rounded-lg shadow-md transition duration-200">
             Go Full Screen
         </button>
     </div>
     
     <div id="app" class="w-full mx-auto flex flex-col h-full">
-        <!-- Header: Replaced with Logo -->
         <header class="text-center mb-6 md:mb-10 flex-shrink-0">
-            <!-- LOGO INTEGRATION HERE - Ensure 'cool_runnings_logo.png' is in the same folder -->
             <img src="cool_runnings_logo.png" alt="Cool Runnings Pub & Grill Logo" class="mx-auto mb-4 w-48 sm:w-64">
             <p class="text-xl text-white">Bingo Caller: Feeling Hot Hot Hot! (1-75)</p>
         </header>
 
-        <!-- Main Caller Area: Border changed to Yellow-500 -->
         <main class="reggae-bg p-6 md:p-10 rounded-3xl shadow-2xl mb-6 flex-grow flex flex-col justify-center border-4 border-yellow-500">
             <h2 class="text-center text-3xl font-bold mb-4 text-gray-900 reggae-text-shadow flex-shrink-0">CURRENT CALL</h2>
             
-            <!-- Called Number Display: Border changed to Yellow-300, Text changed to Green-400 -->
             <div id="current-number-container" class="w-48 h-48 sm:w-64 sm:h-64 mx-auto mb-6 flex items-center justify-center bg-gray-900 rounded-full shadow-inner border-8 border-yellow-300 flex-shrink-0">
                 <span id="current-number" class="text-7xl sm:text-9xl font-black text-green-400 spin-start">--</span>
             </div>
 
-            <!-- Call Buttons: Primary button is Red-600 -->
             <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6 flex-shrink-0">
-                <!-- Primary Call Button -->
                 <button id="call-button" class="bg-red-600 hover:bg-red-700 text-white font-extrabold py-3 px-8 rounded-full shadow-lg transition duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed uppercase text-lg">
                     Call Next Number!
                 </button>
-                <!-- Reset Button -->
                 <button id="reset-button" class="bg-gray-700 hover:bg-gray-600 text-white font-extrabold py-3 px-8 rounded-full shadow-lg transition duration-200 transform hover:scale-105 uppercase text-lg">
                     Reset Game
                 </button>
-            </div>
+                
+                <button onclick="openDareWheel()" class="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-extrabold py-3 px-8 rounded-full shadow-lg transition duration-200 transform hover:scale-105 uppercase text-lg">
+                    🎲 Spin for a Dare!
+                </button>
+                </div>
             
             <p id="game-status" class="text-center mt-4 text-xl font-bold text-gray-900 flex-shrink-0">Game Initialized. Ready to go!</p>
 
-            <!-- Gemini LLM Feature: Button is Yellow-600, Output border is Green-500, Text is Red-600 -->
             <div class="flex flex-col justify-center mt-4 flex-shrink-0">
-                <!-- LLM Callout Button -->
                 <button id="llm-callout-button" class="bg-yellow-600 hover:bg-yellow-700 text-gray-900 font-extrabold py-3 px-8 rounded-full shadow-lg transition duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed uppercase text-lg w-full sm:w-auto mx-auto">
                     ✨ Reggae Verse Call!
                 </button>
             </div>
 
-            <!-- LLM Output Area -->
             <div id="llm-output" class="mt-6 p-4 bg-yellow-200 rounded-xl shadow-inner text-gray-800 hidden border-l-4 border-green-500 flex-shrink-0">
                 <p class="font-extrabold mb-1 text-red-600 uppercase">🎤 The Riddim Master Says:</p>
                 <p id="llm-text" class="italic text-lg"></p>
             </div>
         </main>
 
-        <!-- History Section: Border is Yellow-300 -->
         <section class="bg-gray-800 p-6 rounded-3xl shadow-xl border-t-4 border-yellow-300 flex-shrink-0">
             <h3 class="text-2xl font-bold mb-4 text-white">Previously Called Numbers (Total: <span id="called-count">0</span>)</h3>
             <div id="history-list" class="flex flex-wrap gap-3 max-h-48 md:max-h-56 overflow-y-auto p-2 bg-gray-900 rounded-xl">
-                <!-- History items will be injected here -->
                 <p class="text-gray-500 italic">No numbers called yet. Hit the button above to start the riddim!</p>
             </div>
         </section>
@@ -180,6 +166,21 @@
                 console.error("Error playing sound (Tone.js might be blocked before first interaction):", error);
             }
         }
+
+        // --- NEW DARE WHEEL FUNCTION ---
+        function openDareWheel() {
+            // Open the 'dare_wheel.html' page in a new small, controlled window
+            // The dimensions are set to be big enough for a wheel but not full screen
+            const wheelWindow = window.open('dare_wheel.html', 'DareWheel', 'width=600,height=750,toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes');
+
+            // Check if the window opened successfully
+            if (wheelWindow) {
+                wheelWindow.focus();
+            } else {
+                alert("Please disable your pop-up blocker to open the Dare Wheel. Respect due, mon!");
+            }
+        }
+        // --- END NEW DARE WHEEL FUNCTION ---
 
         // --- Utility Functions ---
         function getBingoColumn(number) {
@@ -317,7 +318,7 @@
         function callNumber() {
             if (isCalling || remainingNumbers.length === 0) {
                 if (remainingNumbers.length === 0) {
-                    gameStatusEl.textContent = 'Game Over, man! All 75 numbers have been called.';
+                    gameStatusEl.textContent = 'Game Over, mon! All 75 numbers have been called.';
                     updateCallButtonState(false);
                 }
                 return;
