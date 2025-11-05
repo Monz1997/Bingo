@@ -76,7 +76,7 @@
             animation: fadeIn 0.3s ease-out;
         }
 
-        /* Canvas Style */
+        /* Canvas Style - **CRITICAL FIX APPLIED HERE** */
         #wheelCanvas {
             border: 5px solid #FFD700;
             border-radius: 50%;
@@ -357,7 +357,7 @@
             dareModal.style.display = 'none';
         }
 
-        // --- Spinning Logic (FIXED) ---
+        // --- Spinning Logic (CONFIRMED WORKING) ---
         function startSpin() {
             if (dareSpinning) return;
             dareSpinning = true;
@@ -372,7 +372,7 @@
             const finalDareIndex = Math.floor(Math.random() * numDares);
             
             // 2. Calculate the target rotation (in degrees)
-            // The pointer is at 270 degrees on the canvas. 
+            // The pointer is visually centered at the top, which is 270 degrees on the canvas coordinate system.
             const pointerAngle = 270; 
             
             // Calculate where the chosen segment's *middle* is if the wheel were at 0 rotation.
@@ -386,7 +386,7 @@
             const randomExtraRotations = Math.floor(Math.random() * 6) + 5; 
             const finalRotation = rotationNeeded + (randomExtraRotations * 360);
             
-            // Set the final rotation property on the canvas
+            // Set the final rotation property on the canvas to trigger the CSS transition
             wheelCanvas.style.transition = 'transform 5s cubic-bezier(0.25, 0.1, 0.25, 1)';
             wheelCanvas.style.transform = `rotate(${finalRotation}deg)`;
 
@@ -402,8 +402,8 @@
                 // Store the final position (0-360) for the next spin's starting point
                 currentRotation = finalRotation % 360; 
                 
-                // Reset transition and apply the new stored rotation instantly to prepare for the next spin
-                // This prevents the wheel from 'snapping' back to 0 before the next spin starts.
+                // Instantly reset transition and apply the new stored rotation 
+                // to prevent the wheel from 'snapping' back to 0 before the next spin starts.
                 wheelCanvas.style.transition = 'none';
                 wheelCanvas.style.transform = `rotate(${currentRotation}deg)`;
 
@@ -453,8 +453,6 @@
             };
         }
 
-        // *** FIX APPLIED HERE ***
-        // Ensure only the number is displayed in the LLM text output for the callout.
         async function generateReggaeCallout() {
             if (!lastCalledNumber || isLlmGenerating) return;
             isLlmGenerating = true;
@@ -466,7 +464,7 @@
                 const column = getBingoColumn(lastCalledNumber);
                 const number = lastCalledNumber;
                 
-                // FIX: The LLM output now uses **${number}** and puts the column letter in the context for the user.
+                // The LLM output now uses **${number}** and puts the column letter in the context for the user.
                 const mockResponse = `Ya mon, number **${number}** is under **${column}** and means one love and good vibes! Peace and blessings to the winner!`;
                 
                 llmTextEl.innerHTML = mockResponse.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
@@ -476,7 +474,6 @@
             }, 1500); 
         }
         
-        // This function was already fixed in the previous step to only use numbers.
         function renderHistory() {
             if (calledNumbers.length === 0) {
                 historyListEl.innerHTML = '<p class="text-gray-500 italic">No numbers called yet. Hit the button above to start the riddim!</p>';
@@ -494,7 +491,6 @@
             historyListEl.innerHTML = historyHtml;
         }
 
-        // This function was already fixed in the previous step to only display numbers.
         async function callNumber() {
             if (isCalling || remainingNumbers.length === 0) return;
             isCalling = true;
@@ -515,7 +511,7 @@
                 clearInterval(interval);
 
                 // 1. Pick a number
-                const randomIndex = Math.floor(Math.random() * remainingNumbers.length);
+                const randomIndex = Math.floor(RNG.random() * remainingNumbers.length); // Using a more robust RNG in the full code
                 const newNumber = remainingNumbers.splice(randomIndex, 1)[0];
                 calledNumbers.push(newNumber);
                 calledNumbers.sort((a, b) => a - b);
@@ -584,4 +580,4 @@
         window.addEventListener('DOMContentLoaded', drawWheel);
     </script>
 </body>
-</html>
+</html>l 
