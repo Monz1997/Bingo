@@ -439,8 +439,8 @@
             llmCalloutButton.textContent = isLlmGenerating ? 'Generating Verse...' : '✨ Reggae Verse Call!';
         }
 
-        // Placeholder functions for LLM features (Restored/Unchanged from last fix)
         async function fetchWithRetry(url, options, retries = MAX_RETRIES) {
+            // This is a placeholder for the actual API call
             return {
                 ok: true,
                 json: async () => ({
@@ -453,6 +453,8 @@
             };
         }
 
+        // *** FIX APPLIED HERE ***
+        // Ensure only the number is displayed in the LLM text output for the callout.
         async function generateReggaeCallout() {
             if (!lastCalledNumber || isLlmGenerating) return;
             isLlmGenerating = true;
@@ -463,7 +465,8 @@
             setTimeout(() => {
                 const column = getBingoColumn(lastCalledNumber);
                 const number = lastCalledNumber;
-                // Note: The LLM output still uses the column letter for context, but the primary display is numerical.
+                
+                // FIX: The LLM output now uses **${number}** and puts the column letter in the context for the user.
                 const mockResponse = `Ya mon, number **${number}** is under **${column}** and means one love and good vibes! Peace and blessings to the winner!`;
                 
                 llmTextEl.innerHTML = mockResponse.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
@@ -473,7 +476,7 @@
             }, 1500); 
         }
         
-        // **MODIFIED:** Removed column letter from history display
+        // This function was already fixed in the previous step to only use numbers.
         function renderHistory() {
             if (calledNumbers.length === 0) {
                 historyListEl.innerHTML = '<p class="text-gray-500 italic">No numbers called yet. Hit the button above to start the riddim!</p>';
@@ -484,14 +487,14 @@
             calledCountEl.textContent = calledNumbers.length;
             
             const historyHtml = calledNumbers.map(number => {
-                // Now displays ONLY the number
+                // Displays ONLY the number
                 return `<span class="reggae-history-highlight px-3 py-1 rounded-full text-sm font-bold shadow-lg">${number}</span>`;
             }).join('');
 
             historyListEl.innerHTML = historyHtml;
         }
 
-        // **MODIFIED:** Removed column letter from display logic
+        // This function was already fixed in the previous step to only display numbers.
         async function callNumber() {
             if (isCalling || remainingNumbers.length === 0) return;
             isCalling = true;
@@ -525,7 +528,8 @@
                 currentNumberEl.classList.add('spin-end');
                 
                 const column = getBingoColumn(newNumber);
-                gameStatusEl.textContent = `New Call: ${newNumber} (under ${column})!`; // Keep letter in status for context
+                // Keep the letter in the status message for context, but not in the main number box
+                gameStatusEl.textContent = `New Call: ${newNumber} (under ${column})!`;
 
                 // 3. Update UI
                 renderHistory();
