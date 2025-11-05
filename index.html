@@ -159,7 +159,7 @@
                 </button>
                 
                 <button onclick="openDareModal()" class="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-extrabold py-3 px-8 rounded-full shadow-lg transition duration-200 transform hover:scale-105 uppercase text-lg">
-                    🎲 Random Dare!
+                    🎲 Bingo Punishment!
                 </button>
             </div>
             
@@ -188,19 +188,19 @@
     
     <div id="dare-modal" class="flex items-center justify-center">
         <div id="dare-modal-content" class="text-center">
-            <h2 class="text-3xl font-bold text-red-600 mb-4">🎯 Your Random Dare!</h2>
-            <p class="mb-6 text-gray-600">Click the button below to receive your fate, mon!</p>
+            <h2 class="text-3xl font-bold text-red-600 mb-4">🎯 Your Bingo Punishment!</h2>
+            <p class="mb-6 text-gray-600">You messed up! Roll the dice and face your fate, mon!</p>
 
             <div id="dareDisplay" class="my-6">
-                <p id="dareText">Ready for the challenge...</p>
+                <p id="dareText">Roll the dice and face your fate...</p>
             </div>
             
             <div class="mt-6 space-y-3">
                 <button id="dare-spin-button" class="dare-spin-button w-full" onclick="selectDare()">
-                    GET RANDOM DARE!
+                    GET PUNISHMENT!
                 </button>
                 <button id="close-dare-button" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-5 rounded-full w-full" onclick="closeDareModal()">
-                    Close Dare (Challenge Accepted)
+                    Close Dare (Punishment Accepted)
                 </button>
             </div>
         </div>
@@ -261,49 +261,56 @@
         }
 
         // ===================================
-        // --- DARE LOGIC (SIMPLIFIED) ---
+        // --- DARE/PUNISHMENT LOGIC (FINAL LIST OF 39) ---
         // ===================================
         const dares = [
-            "Speak with an opera singer's voice for 5 min.",
-            "Do a dramatic reading of a text message.",
-            "Do the Macarena alone.",
-            "Walk like a penguin to the kitchen.",
-            "Give a loud, evil villain laugh.",
-            "Do a super-slow high-five.",
-            "Walk on your knees until next turn.",
-            "Catch a piece of food in your mouth.",
-            "Do a silly dance on word 'the'.",
-            "Jump and flap like a chicken.",
-            "Wear a pillow 'pregnant' for 5 min.",
-            "Run outside and yell 'Woohoo!'.",
-            "Perform a gymnast floor routine.",
-            "Lift another player singing 'Happy Birthday'.",
-            "Ask a pillow for relationship advice.",
-            "Create a secret code word (scratch nose).",
-            "Give a TED Talk on your favorite snack.",
-            "Wave enthusiastically at a window.",
-            "Do a belly dance for 15 seconds.",
-            "Eat a spoonful of a mystery condiment.",
-            "Take a bite of a raw lemon.",
-            "Hold water, try not to laugh.",
-            "Talk without closing your mouth for 60s.",
-            "Pretend to eat invisible spaghetti.",
-            "Give a sincere compliment to everyone.",
-            "2-min convo with an inanimate object.",
-            "Call a family member with an absurd story.",
-            "High-five a wall 5 times, say its name.",
-            "Hop on one foot, recite alphabet backwards.",
-            "10 jumping jacks singing nursery rhyme.",
-            "Balance a book on your head and walk.",
-            "Imitate a statue for one minute."
+            "Oliver's Apology: Go to 4 different people (not at your table) and in a dramatic, Oliver Twist-style voice, beg: 'Please, sir/madam, may I have another chance? I have failed at Bingo!'",
+            "Cheerleader for the Winner: When the next person genuinely calls Bingo, stand up and perform an over-the-top, one-person cheer for them.",
+            "The F-Up Song: Sing a short, original song (3 lines minimum) to the table next to you about how badly you messed up.",
+            "Beer Bucket Helmet: Place an empty beer bucket/ice bucket on your head for one full round of Bingo.",
+            "Dramatic Apology: Stand on your chair and give a heartfelt, Shakespearean apology to the entire room for your mistake.",
+            "Loudest Whisper: For the next 10 minutes, you must only 'whisper-shout'—loud enough for the whole room to hear, but in a dramatic whisper.",
+            "Impersonate a Bobsled: Get low and slide/scoot between two tables, making the sound effects of a bobsled on ice.",
+            "Mystery Condiment: Blindfolded, take a small taste of a condiment chosen by your group (e.g., hot sauce, mustard, pickle juice).",
+            "Bad Joke Teller: Tell the nearest table a joke you know is terrible, but deliver the punchline with maximum enthusiasm.",
+            "Say 'Ya Mon!': You must shout 'Ya Mon!' after everything you say for the next three minutes.",
+            "Imitate a Waiter: Go to a random table (that is not yours) and ask them if everything is okay, speaking with a fake posh accent.",
+            "The Animal Call: Pick a random animal and make its noise every time a number with a '5' in it is called (e.g., 5, 15, 25...).",
+            "Compliment the Floor: Get down on your knees and give three specific compliments to the pub's floor.",
+            "Take a Shot: Take a small shot (of water, juice, or alcohol chosen by the group, depending on context) as a penalty.",
+            "The Human Statue: Freeze in a ridiculous pose of your friend's choosing for one full minute.",
+            "The Reverse Walk: Walk backward everywhere you need to go for the next 10 minutes (using a friend as a spotter).",
+            "Step Up Showdown: Find a picture or sign of any animal on a wall and perform a dramatic, 30-second 'Step Up' style dance-off with it.",
+            "Restaurant Crawl with Animal Noises: Crawl on your hands and knees across the floor around the restaurant area (if safe and appropriate), making loud animal noises the entire time.",
+            "Dramatic Reading: Read the label of a bottle of beer or sauce in a highly exaggerated romantic voice.",
+            "Sing Everything: Sing everything you say for the next three minutes (or until your next turn).",
+            "Slow-Motion Run: Do your best slow-motion running across the room.",
+            "Air Solo: Perform an air guitar or drum solo that lasts for 30 seconds.",
+            "Mime in a Box: Pretend to be a mime trapped in a box for one full minute.",
+            "Useless Sales Pitch: Give a sales pitch for a completely useless object in the room.",
+            "Mating Call: Do your best animal mating call (of an animal chosen by the group).",
+            "Fairy Tale Act: Act out a scene from a fairy tale (like Goldilocks or Red Riding Hood) in 30 seconds.",
+            "Cry Like a Baby: Cry like a baby for 20 seconds straight.",
+            "Hairbrush Microphone: Use a hairbrush or pen as a microphone every time you talk.",
+            "Statue Challenge: Imitate a statue for one minute while everyone tries to make you laugh.",
+            "Jumping Jack Nursery Rhyme: Do 10 jumping jacks while singing your favorite nursery rhyme.",
+            "Spin and Walk: Spin around ten times and then try to walk a straight line.",
+            "Word-Triggered Dance: Do a silly dance whenever someone says the word '_____' for the next round (group chooses the word).",
+            "Chicken Flap: Jump up and down on one foot while flapping your arms like a chicken.",
+            "Model Routine: Perform your best model routine with a dramatic finish pose.",
+            "Inanimate Conversation: Have a two-minute conversation with an inanimate object (like a pillow or lamp) as if it were a long-lost friend.",
+            "Snack TED Talk: Give a one-minute TED Talk on the importance of your favorite snack food.",
+            "Absurd Family Call: Call a random family member and tell them a completely made-up, absurd story (e.g., about adopting a pet moose).",
+            "Belly Dance: Do a belly dance for 15 seconds.",
+            "The Word: Choose a word (e.g., 'Bingo') and whenever someone says it, you must perform a specific action (e.g., touching your nose) for the next round."
         ];
         
-        // --- Modal Control Functions (Updated) ---
+        // --- Modal Control Functions (Unchanged) ---
         window.openDareModal = function() {
             dareModal.style.display = 'flex';
-            dareSpinButton.textContent = "GET RANDOM DARE!";
+            dareSpinButton.textContent = "GET PUNISHMENT!";
             dareSpinButton.disabled = false;
-            dareTextEl.textContent = "Ready for the challenge...";
+            dareTextEl.textContent = "Roll the dice and face your fate...";
         }
 
         window.closeDareModal = function() {
@@ -313,9 +320,9 @@
         // --- Selection Logic (INSTANT) ---
         window.selectDare = function() {
             dareSpinButton.disabled = true;
-            dareSpinButton.textContent = "DARE SELECTED!";
+            dareSpinButton.textContent = "PUNISHMENT SELECTED!";
             
-            // Pick a random dare
+            // Pick a random punishment
             const randomIndex = Math.floor(Math.random() * dares.length);
             const finalDare = dares[randomIndex];
             
@@ -324,7 +331,7 @@
         }
         
         // ===================================
-        // --- END DARE LOGIC ---
+        // --- END DARE/PUNISHMENT LOGIC ---
         // ===================================
 
 
