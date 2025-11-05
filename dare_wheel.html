@@ -83,6 +83,12 @@
             "Imitate a statue for one minute while everyone tries to make you laugh."
         ];
 
+        // Utility function to correctly format dare text with HTML bold tags
+        function formatDare(text) {
+            // Replace **text** with <strong>text</strong>
+            return text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        }
+
         function selectRandomDare() {
             const button = document.querySelector('.spin-button');
             button.disabled = true;
@@ -96,7 +102,9 @@
                 if (Date.now() - startTime < totalSpinDuration) {
                     // Pick and display a random dare quickly to simulate a spin
                     const randomIndex = Math.floor(Math.random() * dares.length);
-                    display.innerHTML = `**${dares[randomIndex]}**`;
+                    
+                    // CORRECTED: Use formatDare to render bold text properly
+                    display.innerHTML = formatDare(dares[randomIndex]);
                     
                     // Call itself again for the next 'spin' frame
                     requestAnimationFrame(spinEffect);
@@ -105,7 +113,10 @@
                     const finalIndex = Math.floor(Math.random() * dares.length);
                     const finalDare = dares[finalIndex];
                     
-                    display.innerHTML = `🎉 **YOUR DARE IS:** 🎉<br><br><span style="color: #c0392b; font-size: 1.2em;">${finalDare}</span>`;
+                    // CORRECTED: Use formatDare for the final display
+                    const formattedDare = formatDare(finalDare);
+                    
+                    display.innerHTML = `🎉 <strong>YOUR DARE IS:</strong> 🎉<br><br><span style="color: #c0392b; font-size: 1.2em;">${formattedDare}</span>`;
                     
                     button.textContent = "Spin Again!";
                     button.disabled = false;
