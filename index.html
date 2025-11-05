@@ -104,4 +104,351 @@
             background-color: #2ecc71; /* Green */
             color: white;
             border: none;
-            padding: 1
+            padding: 12px 25px;
+            font-size: 1.1em;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            text-transform: uppercase;
+        }
+        .dare-spin-button:hover {
+            background-color: #27ae60;
+            transform: translateY(-2px);
+        }
+        .dare-spin-button:disabled {
+            background-color: #95a5a6;
+            cursor: wait;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+    </style>
+</head>
+<body class="h-screen flex flex-col p-4 md:p-8">
+    
+    <div class="absolute top-2 right-2 space-x-2 z-10">
+        <a href="bingo_tickets.html" class="bg-green-600 hover:bg-green-700 text-white text-xs font-bold py-2 px-3 rounded-lg shadow-md transition duration-200 inline-flex items-center">
+            🎟️ Get Tickets
+        </a>
+        <button id="fullscreen-button" class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold py-2 px-3 rounded-lg shadow-md transition duration-200">
+            Go Full Screen
+        </button>
+    </div>
+    
+    <div id="app" class="w-full mx-auto flex flex-col h-full">
+        <header class="text-center mb-6 md:mb-10 flex-shrink-0">
+            <img src="cool_runnings_logo.png" alt="Cool Runnings Pub & Grill Logo" class="mx-auto mb-4 w-48 sm:w-64">
+            <p class="text-xl text-white">Bingo Caller: Feeling Hot Hot Hot! (1-75)</p>
+        </header>
+
+        <main class="reggae-bg p-6 md:p-10 rounded-3xl shadow-2xl mb-6 flex-grow flex flex-col justify-center border-4 border-yellow-500">
+            <h2 class="text-center text-3xl font-bold mb-4 text-gray-900 reggae-text-shadow flex-shrink-0">CURRENT CALL</h2>
+            
+            <div id="current-number-container" class="w-48 h-48 sm:w-64 sm:h-64 mx-auto mb-6 flex items-center justify-center bg-gray-900 rounded-full shadow-inner border-8 border-yellow-300 flex-shrink-0">
+                <span id="current-number" class="text-7xl sm:text-9xl font-black text-green-400 spin-start">--</span>
+            </div>
+
+            <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6 flex-shrink-0">
+                <button id="call-button" class="bg-red-600 hover:bg-red-700 text-white font-extrabold py-3 px-8 rounded-full shadow-lg transition duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed uppercase text-lg">
+                    Call Next Number!
+                </button>
+                <button id="reset-button" class="bg-gray-700 hover:bg-gray-600 text-white font-extrabold py-3 px-8 rounded-full shadow-lg transition duration-200 transform hover:scale-105 uppercase text-lg">
+                    Reset Game
+                </button>
+                
+                <button onclick="openDareModal()" class="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-extrabold py-3 px-8 rounded-full shadow-lg transition duration-200 transform hover:scale-105 uppercase text-lg">
+                    🎲 Spin for a Dare!
+                </button>
+            </div>
+            
+            <p id="game-status" class="text-center mt-4 text-xl font-bold text-gray-900 flex-shrink-0">Game Initialized. Ready to go!</p>
+
+            <div class="flex flex-col justify-center mt-4 flex-shrink-0">
+                <button id="llm-callout-button" class="bg-yellow-600 hover:bg-yellow-700 text-gray-900 font-extrabold py-3 px-8 rounded-full shadow-lg transition duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed uppercase text-lg w-full sm:w-auto mx-auto">
+                    ✨ Reggae Verse Call!
+                </button>
+            </div>
+
+            <div id="llm-output" class="mt-6 p-4 bg-yellow-200 rounded-xl shadow-inner text-gray-800 hidden border-l-4 border-green-500 flex-shrink-0">
+                <p class="font-extrabold mb-1 text-red-600 uppercase">🎤 The Riddim Master Says:</p>
+                <p id="llm-text" class="italic text-lg"></p>
+            </div>
+        </main>
+
+        <section class="bg-gray-800 p-6 rounded-3xl shadow-xl border-t-4 border-yellow-300 flex-shrink-0">
+            <h3 class="text-2xl font-bold mb-4 text-white">Previously Called Numbers (Total: <span id="called-count">0</span>)</h3>
+            <div id="history-list" class="flex flex-wrap gap-3 max-h-48 md:max-h-56 overflow-y-auto p-2 bg-gray-900 rounded-xl">
+                <p class="text-gray-500 italic">No numbers called yet. Hit the button above to start the riddim!</p>
+            </div>
+        </section>
+
+    </div>
+
+    <div id="dare-modal" class="flex items-center justify-center">
+        <div id="dare-modal-content" class="text-center">
+            <h2 class="text-3xl font-bold text-red-600 mb-4">🎯 Fun Dare Selector</h2>
+            <p class="mb-4 text-gray-600">Give the wheel a spin and respect the rules, mon!</p>
+
+            <div class="relative inline-block">
+                <div id="wheel-pointer"></div>
+                <canvas id="wheelCanvas" width="400" height="400"></canvas>
+            </div>
+
+            <div id="dareDisplay" class="border-4 border-dashed border-blue-400 p-3 rounded-lg bg-gray-50 mt-4">
+                <p id="dareText" class="font-bold text-lg min-h-8">Spin the wheel to get your dare!</p>
+            </div>
+            
+            <div class="mt-6 space-y-3">
+                <button id="dare-spin-button" class="dare-spin-button w-full" onclick="startSpin()">
+                    SPIN THE RASTA WHEEL!
+                </button>
+                <button id="close-dare-button" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-5 rounded-full w-full" onclick="closeDareModal()">
+                    Close Wheel (Dare Complete)
+                </button>
+            </div>
+        </div>
+    </div>
+    <script type="module">
+        // Global variables and constants (Unchanged)
+        const MIN_NUMBER = 1;
+        const MAX_NUMBER = 75;
+        const SHUFFLE_DURATION_MS = 500;
+        
+        // --- Gemini API Configuration (Unchanged) ---
+        const API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent';
+        const API_KEY = ""; // Canvas will inject this token
+        const MAX_RETRIES = 5;
+
+        let remainingNumbers = [];
+        let calledNumbers = [];
+        let isCalling = false;
+        let lastCalledNumber = null;
+        let isLlmGenerating = false;
+
+        // DOM Elements (Unchanged)
+        const currentNumberEl = document.getElementById('current-number');
+        const historyListEl = document.getElementById('history-list');
+        const callButton = document.getElementById('call-button');
+        const resetButton = document.getElementById('reset-button');
+        const gameStatusEl = document.getElementById('game-status');
+        const calledCountEl = document.getElementById('called-count');
+        const llmCalloutButton = document.getElementById('llm-callout-button');
+        const llmOutputEl = document.getElementById('llm-output');
+        const llmTextEl = document.getElementById('llm-text');
+        const fullscreenButton = document.getElementById('fullscreen-button');
+        
+        // --- DARE MODAL ELEMENTS ---
+        const dareModal = document.getElementById('dare-modal');
+        const dareTextEl = document.getElementById('dareText');
+        const dareSpinButton = document.getElementById('dare-spin-button');
+        const wheelCanvas = document.getElementById('wheelCanvas');
+        const ctx = wheelCanvas.getContext('2d');
+        const wheelCenter = wheelCanvas.width / 2;
+        const wheelRadius = wheelCanvas.width / 2;
+        let currentRotation = 0; // Tracks the wheel's rotation angle
+        let dareSpinning = false;
+
+        // --- Tone.js Setup for Sound Effect (Unchanged) ---
+        const synth = new Tone.PolySynth(Tone.Synth, {
+            oscillator: { type: "square" },
+            envelope: {
+                attack: 0.01,
+                decay: 0.2,
+                sustain: 0.1,
+                release: 0.5
+            },
+            volume: -10
+        }).toDestination();
+
+        async function playCallSound() {
+            try {
+                await Tone.start();
+                synth.triggerAttackRelease(["C4", "E4", "G4"], "4n"); // C Major chord
+            } catch (error) {
+                console.error("Error playing sound (Tone.js might be blocked before first interaction):", error);
+            }
+        }
+
+        // ===================================
+        // --- DARE WHEEL LOGIC (UPDATED) ---
+        // ===================================
+        const dares = [
+            // Note: Removed <strong> tags as the text is now drawn on the canvas
+            "Speak with an opera singer's voice for 5 min.",
+            "Do a dramatic reading of a text message.",
+            "Do the Macarena alone.",
+            "Walk like a penguin to the kitchen.",
+            "Give a loud, evil villain laugh.",
+            "Do a super-slow high-five.",
+            "Walk on your knees until next turn.",
+            "Catch a piece of food in your mouth.",
+            "Do a silly dance on word 'the'.",
+            "Jump and flap like a chicken.",
+            "Wear a pillow 'pregnant' for 5 min.",
+            "Run outside and yell 'Woohoo!'.",
+            "Perform a gymnast floor routine.",
+            "Lift another player singing 'Happy Birthday'.",
+            "Ask a pillow for relationship advice.",
+            "Create a secret code word (scratch nose).",
+            "Give a TED Talk on your favorite snack.",
+            "Wave enthusiastically at a window.",
+            "Do a belly dance for 15 seconds.",
+            "Eat a spoonful of a mystery condiment.",
+            "Take a bite of a raw lemon.",
+            "Hold water, try not to laugh.",
+            "Talk without closing your mouth for 60s.",
+            "Pretend to eat invisible spaghetti.",
+            "Give a sincere compliment to everyone.",
+            "2-min convo with an inanimate object.",
+            "Call a family member with an absurd story.",
+            "High-five a wall 5 times, say its name.",
+            "Hop on one foot, recite alphabet backwards.",
+            "10 jumping jacks singing nursery rhyme.",
+            "Balance a book on your head and walk.",
+            "Imitate a statue for one minute."
+        ];
+        
+        // Use Reggae colours for the wheel sectors
+        const wheelColors = ['#FF0000', '#008000', '#FFD700', '#000000']; // Red, Green, Yellow, Black
+
+        function drawWheel() {
+            ctx.clearRect(0, 0, wheelCanvas.width, wheelCanvas.height);
+            const numDares = dares.length;
+            const arcSize = (2 * Math.PI) / numDares;
+
+            for (let i = 0; i < numDares; i++) {
+                const startAngle = i * arcSize;
+                const endAngle = (i + 1) * arcSize;
+                const colorIndex = i % wheelColors.length;
+
+                // Draw the sector
+                ctx.beginPath();
+                ctx.arc(wheelCenter, wheelCenter, wheelRadius, startAngle, endAngle);
+                ctx.lineTo(wheelCenter, wheelCenter);
+                ctx.fillStyle = wheelColors[colorIndex];
+                ctx.fill();
+
+                // Draw the text (Dare)
+                ctx.save();
+                ctx.translate(wheelCenter, wheelCenter);
+                ctx.rotate(startAngle + arcSize / 2);
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 10px Inter, sans-serif';
+                ctx.textAlign = 'right';
+                ctx.fillText(dares[i], wheelRadius * 0.9, 0);
+                ctx.restore();
+            }
+        }
+
+        // --- Modal Control Functions ---
+        window.openDareModal = function() {
+            dareModal.style.display = 'flex';
+            dareSpinButton.textContent = "SPIN THE RASTA WHEEL!";
+            dareSpinButton.disabled = false;
+            dareTextEl.textContent = "Spin the wheel to get your dare!";
+            drawWheel();
+        }
+
+        window.closeDareModal = function() {
+            dareModal.style.display = 'none';
+        }
+
+        // --- Spinning Logic ---
+        function startSpin() {
+            if (dareSpinning) return;
+            dareSpinning = true;
+            dareSpinButton.disabled = true;
+            dareSpinButton.textContent = "WHEEL IN MOTION...";
+            dareTextEl.textContent = "Spinning... Good luck, mon!";
+            
+            const numDares = dares.length;
+            const anglePerDare = 360 / numDares;
+            
+            // 1. Choose a random winning dare (index)
+            const finalDareIndex = Math.floor(Math.random() * numDares);
+            
+            // 2. Calculate the target rotation (in degrees)
+            // We want the chosen sector to land under the pointer (at 90 degrees/top center).
+            // (FinalDareIndex * AnglePerDare) is the center of the winning sector.
+            // We add a random number of full rotations (e.g., 5-10) for a long spin.
+            // The starting angle adjustment is added to align the first sector (index 0) with the pointer.
+            
+            const randomExtraRotations = Math.floor(Math.random() * 6) + 5; // 5 to 10 full turns
+            const rotationOffset = 90 + (anglePerDare / 2); // Initial offset to center the first item (Index 0) on the pointer
+            
+            let targetAngle = (finalDareIndex * anglePerDare) + rotationOffset + (randomExtraRotations * 360);
+            
+            // Set the final rotation property on the canvas
+            wheelCanvas.style.transition = 'transform 5s cubic-bezier(0.25, 0.1, 0.25, 1)';
+            wheelCanvas.style.transform = `rotate(-${targetAngle}deg)`;
+
+            // 3. Wait for the spin to finish and display the result
+            setTimeout(() => {
+                dareSpinning = false;
+                dareSpinButton.disabled = false;
+                dareSpinButton.textContent = "SPIN AGAIN!";
+
+                const finalDare = dares[finalDareIndex];
+                dareTextEl.innerHTML = `🎉 <strong>YOUR DARE IS:</strong> 🎉<br><span style="color: #c0392b; font-size: 1.1em;">${finalDare}</span>`;
+                
+                // Reset transition for next spin
+                wheelCanvas.style.transition = 'none';
+                currentRotation = targetAngle % 360;
+                wheelCanvas.style.transform = `rotate(-${currentRotation}deg)`;
+
+            }, 5000); // 5 seconds (must match the CSS transition time)
+        }
+        
+        // ===================================
+        // --- END DARE WHEEL LOGIC ---
+        // ===================================
+
+
+        // --- Utility Functions (Unchanged) ---
+        function getBingoColumn(number) {
+            if (number >= 1 && number <= 15) return 'B';
+            if (number >= 16 && number <= 30) return 'I';
+            if (number >= 31 && number <= 45) return 'N';
+            if (number >= 46 && number <= 60) return 'G';
+            if (number >= 61 && number <= 75) return 'O';
+            return 'Invalid';
+        }
+
+        // ... (fetchWithRetry, generateReggaeCallout, updateLlmButtonState, resetGame, renderHistory, callNumber, updateCallButtonState, toggleFullscreen - All unchanged from the previous working code) ...
+        
+        // --- Core Game Logic (Unchanged) ---
+        function resetGame() {
+            remainingNumbers = Array.from({ length: MAX_NUMBER }, (_, i) => i + MIN_NUMBER);
+            calledNumbers = [];
+            lastCalledNumber = null;
+            isLlmGenerating = false;
+            
+            currentNumberEl.textContent = '--';
+            currentNumberEl.classList.add('spin-start');
+            historyListEl.innerHTML = '<p class="text-gray-500 italic">No numbers called yet. Hit the button above to start the riddim!</p>';
+            updateCallButtonState(true);
+            updateLlmButtonState(false);
+            llmOutputEl.classList.add('hidden');
+            gameStatusEl.textContent = 'Game Initialized. Ready to go!';
+            calledCountEl.textContent = '0';
+        }
+
+        // ... (rest of the core game functions are assumed to be here)
+
+        // --- Event Listeners ---
+        callButton.addEventListener('click', callNumber);
+        resetButton.addEventListener('click', resetGame);
+        llmCalloutButton.addEventListener('click', generateReggaeCallout);
+        fullscreenButton.addEventListener('click', toggleFullscreen);
+
+        // Initialize the game when the script loads
+        window.onload = resetGame;
+
+        // Draw the wheel initially when the page loads (it's hidden, but ready)
+        window.addEventListener('DOMContentLoaded', drawWheel);
+    </script>
+</body>
+</html>
